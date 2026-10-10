@@ -1,4 +1,6 @@
-plugins { id("com.android.application") }
+plugins {
+    id("com.android.application")
+}
 
 android {
     namespace = "com.daroca.entregas"
@@ -11,4 +13,12 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+}
+
+dependencies {
+    // Leitura de texto das comandas
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    // Carregamento seguro do HTML no Android
+    implementation("androidx.webkit:webkit:1.12.1")
 }
