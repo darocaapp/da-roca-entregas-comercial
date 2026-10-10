@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#513a29">
+  <title>DAROÇA | Painel do Restaurante</title>
+  <style>
+    :root {
+      --marrom: #513a29;
+      --marrom-escuro: #342519;
+      --bege: #f5eddf;
+      --creme: #fffaf2;
+      --verde: #347b48;
+      --vermelho: #b13e35;
+      --borda: #e4d8c7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bege);
+      color: var(--marrom-escuro);
+    }
+
+    header {
+      background: var(--marrom);
+      color: white;
+      padding: 23px 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 2px;
+    }
+
+    header p {
+      margin: 7px 0 0;
+      color: #ead8c1;
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 0 15px 35px;
+    }
+
+    .card {
+      background: var(--creme);
+      border: 1px solid var(--borda);
+      border-radius: 15px;
+      padding: 24px;
+      box-shadow: 0 5px 18px rgba(60, 40, 20, .07);
+      margin-bottom: 18px;
+    }
+
+    .login-card {
+      max-width: 430px;
+      margin: 50px auto;
+    }
+
+    h2 {
+      margin: 0 0 17px;
+      color: var(--marrom);
+      font-size: 21px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    p { line-height: 1.5; }
+
+    label {
+      display: block;
+      margin: 15px 0 6px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbbba6;
+      border-radius: 9px;
+      background: white;
+      font-size: 16px;
+      color: #342519;
+    }
+
+    input:focus {
+      outline: 2px solid #a78560;
+      border-color: transparent;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 16px;
+      background: var(--marrom);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button:disabled { opacity: .55; cursor: wait; }
+
+    .btn-verde { background: var(--verde); }
+    .btn-vermelho { background: var(--vermelho); }
+    .btn-claro {
+      background: #eee2d0;
+      color: var(--marrom);
+    }
+
+    .btn-largo {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      color: #786653;
+    }
+
+    .lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 13px;
+      margin-top: 18px;
+    }
+
+    .motoboy {
+      background: white;
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      padding: 17px;
+    }
+
+    .motoboy .login {
+      font-size: 19px;
+      font-weight: bold;
+      color: var(--marrom);
+      margin: 9px 0 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .motoboy button { width: 100%; }
+
+    .etiqueta {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--verde);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .mensagem {
+      display: none;
+      padding: 13px;
+      border-radius: 9px;
+      margin: 13px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .mensagem.sucesso {
+      display: block;
+      background: #e5f4e7;
+      color: #225c31;
+    }
+
+    .mensagem.erro {
+      display: block;
+      background: #fbe6e3;
+      color: #8c2922;
+    }
+
+    .oculto { display: none !important; }
+
+    .modal-fundo {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 20, 13, .65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      z-index: 10;
+    }
+
+    .modal {
+      background: var(--creme);
+      border-radius: 15px;
+      width: 100%;
+      max-width: 440px;
+      padding: 25px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal .acoes {
+      margin-top: 22px;
+    }
+
+    .modal .acoes button {
+      flex: 1;
+    }
+
+    .rodape {
+      text-align: center;
+      color: #897662;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 550px) {
+      .card { padding: 18px; }
+      .login-card { margin-top: 22px; }
+      .acoes { width: 100%; }
+      .acoes button { flex: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>DAROÇA</h1>
+    <p>PAINEL DO RESTAURANTE</p>
+  </header>
+
+  <main>
+    <section id="telaLogin" class="card login-card">
+      <h2>Acesso do proprietário</h2>
+      <p class="subtitulo">
+        Entre com o código e a senha fornecidos
+        pelo administrador.
+      </p>
+
+      <form id="formLogin">
+        <label for="codigo">Código do restaurante</label>
+        <input
+          id="codigo"
+          type="text"
+          maxlength="20"
+          autocomplete="username"
+          autocapitalize="none"
+          required
+        >
+
+        <label for="senhaLogin">Senha</label>
+        <input
+          id="senhaLogin"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <div id="mensagemLogin" class="mensagem"></div>
+
+        <button
+          id="btnEntrar"
+          class="btn-verde btn-largo"
+          type="submit"
+        >
+          Entrar no painel
+        </button>
+      </form>
+    </section>
+
+    <section id="telaPainel" class="oculto">
+      <div class="card">
+        <div class="linha">
+          <div>
+            <h2 id="nomeRestaurante">Meu restaurante</h2>
+            <p id="codigoRestaurante" class="subtitulo"></p>
+          </div>
+
+          <div class="acoes">
+            <button
+              id="btnMinhaSenha"
+              class="btn-claro"
+              type="button"
+            >
+              Alterar minha senha
+            </button>
+
+            <button
+              id="btnSair"
+              class="btn-vermelho"
+              type="button"
+            >
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="linha">
+          <div>
+            <h2>Meus motoboys</h2>
+            <p class="subtitulo">
+              Escolha um motoboy para alterar sua senha.
+            </p>
+          </div>
+
+          <button
+            id="btnAtualizar"
+            class="btn-claro"
+            type="button"
+          >
+            Atualizar lista
+          </button>
+        </div>
+
+        <div id="mensagemPainel" class="mensagem"></div>
+
+        <div id="listaMotoboys" class="lista"></div>
+      </div>
+
+      <p class="rodape">
+        DAROÇA APP — Gerenciamento de acessos
+      </p>
+    </section>
+  </main>
+
+  <div id="fundoModal" class="modal-fundo oculto">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tituloModal"
+    >
+      <h2 id="tituloModal">Alterar senha</h2>
+      <p id="descricaoModal" class="subtitulo"></p>
+
+      <form id="formSenha">
+        <div id="campoSenhaAtual" class="oculto">
+          <label for="senhaAtual">Senha atual</label>
+          <input
+            id="senhaAtual"
+            type="password"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <label for="novaSenha">Nova senha</label>
+        <input
+          id="novaSenha"
+          type="password"
+          minlength="8"
+          maxlength="72"
+          autocomplete="new-password"
+          required
+        >
+
+        <label for="confirmarSenha">Confirmar nova senha</label>
+        <input
+          id="confirmarSenha"
+          type="password"
+          minlength="8"
+          maxlength="72"
+          autocomplete="new-password"
+          required
+        >
+
+        <p class="subtitulo">
+          A senha deve ter de 8 a 72 caracteres.
+        </p>
+
+        <div id="mensagemModal" class="mensagem"></div>
+
+        <div class="acoes">
+          <button
+            id="btnCancelar"
+            class="btn-claro"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button
+            id="btnSalvarSenha"
+            class="btn-verde"
+            type="submit"
+          >
+            Salvar senha
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const API =
+      "https://daroca-licencas.darocarestaurante1.workers.dev";
+
+    const $ = id => document.getElementById(id);
+
+    let token = "";
+    let expiraEm = 0;
+    let loginSelecionado = "";
+    let tipoAlteracao = "";
+
+    function mostrarMensagem(id, texto, sucesso = false) {
+      const elemento = $(id);
+      elemento.textContent = texto;
+      elemento.className =
+        "mensagem " + (sucesso ? "sucesso" : "erro");
+    }
+
+    function limparMensagem(id) {
+      const elemento = $(id);
+      elemento.textContent = "";
+      elemento.className = "mensagem";
+    }
+
+    function bloquearBotao(id, bloqueado, texto) {
+      const botao = $(id);
+      botao.disabled = bloqueado;
+      if (texto) botao.textContent = texto;
+    }
+
+    async function requisicao(caminho, metodo = "GET", dados) {
+      const cabecalhos = {};
+
+      if (token) {
+        cabecalhos.Authorization = "Bearer " + token;
+      }
+
+      if (dados !== undefined) {
+        cabecalhos["Content-Type"] = "application/json";
+      }
+
+      const opcoes = {
+        method: metodo,
+        headers: cabecalhos,
+        cache: "no-store"
+      };
+
+      if (dados !== undefined) {
+        opcoes.body = JSON.stringify(dados);
+      }
+
+      const resposta = await fetch(API + caminho, opcoes);
+
+      let resultado;
+      try {
+        resultado = await resposta.json();
+      } catch {
+        throw new Error(
+          "Não foi possível interpretar a resposta do servidor."
+        );
+      }
+
+      if (!resposta.ok || !resultado.sucesso) {
+        const erro = new Error(
+          resultado.erro || "Ocorreu um erro na operação."
+        );
+        erro.status = resposta.status;
+        throw erro;
+      }
+
+      return resultado;
+    }
+
+    function encerrarSessao() {
+      token = "";
+      expiraEm = 0;
+      loginSelecionado = "";
+      tipoAlteracao = "";
+
+      $("telaPainel").classList.add("oculto");
+      $("telaLogin").classList.remove("oculto");
+      $("fundoModal").classList.add("oculto");
+
+      $("senhaLogin").value = "";
+      $("listaMotoboys").replaceChildren();
+
+      limparMensagem("mensagemPainel");
+      limparMensagem("mensagemModal");
+    }
+
+    function tratarErro(error, destino) {
+      if (error.status === 401 && token) {
+        encerrarSessao();
+        mostrarMensagem(
+          "mensagemLogin",
+          "Sua sessão expirou ou foi encerrada. Entre novamente."
+        );
+        return;
+      }
+
+      mostrarMensagem(
+        destino,
+        error.message || "Não foi possível concluir a operação."
+      );
+    }
+
+    async function carregarMotoboys() {
+      limparMensagem("mensagemPainel");
+      $("listaMotoboys").replaceChildren();
+
+      try {
+        const dados = await requisicao(
+          "/restaurante/motoboys"
+        );
+
+        const lista = Array.isArray(dados.motoboys)
+          ? dados.motoboys
+          : [];
+
+        if (!lista.length) {
+          mostrarMensagem(
+            "mensagemPainel",
+            "Nenhum motoboy cadastrado neste restaurante."
+          );
+          return;
+        }
+
+        for (const motoboy of lista) {
+          const card = document.createElement("div");
+          card.className = "motoboy";
+
+          const etiqueta = document.createElement("div");
+          etiqueta.className = "etiqueta";
+          etiqueta.textContent = "Acesso do motoboy";
+
+          const nome = document.createElement("div");
+          nome.className = "login";
+          nome.textContent = motoboy.login;
+
+          const botao = document.createElement("button");
+          botao.className = "btn-verde";
+          botao.type = "button";
+          botao.textContent = "Alterar senha";
+          botao.addEventListener("click", () => {
+            abrirModalMotoboy(motoboy.login);
+          });
+
+          card.append(etiqueta, nome, botao);
+          $("listaMotoboys").appendChild(card);
+        }
+      } catch (error) {
+        tratarErro(error, "mensagemPainel");
+      }
+    }
+
+    $("formLogin").addEventListener(
+      "submit",
+      async evento => {
+        evento.preventDefault();
+        limparMensagem("mensagemLogin");
+
+        bloquearBotao("btnEntrar", true, "Entrando...");
+
+        try {
+          const dados = await requisicao(
+            "/restaurante/login",
+            "POST",
+            {
+              codigo: $("codigo").value.trim(),
+              senha: $("senhaLogin").value
+            }
+          );
+
+          token = dados.token;
+          expiraEm = dados.expira_em;
+
+          $("nomeRestaurante").textContent =
+            dados.restaurante.nome;
+
+          $("codigoRestaurante").textContent =
+            "Código: " + dados.restaurante.codigo;
+
+          $("senhaLogin").value = "";
+
+          $("telaLogin").classList.add("oculto");
+          $("telaPainel").classList.remove("oculto");
+
+          await carregarMotoboys();
+        } catch (error) {
+          mostrarMensagem(
+            "mensagemLogin",
+            error.message || "Falha ao entrar."
+          );
+        } finally {
+          bloquearBotao(
+            "btnEntrar",
+            false,
+            "Entrar no painel"
+          );
+        }
+      }
+    );
+
+    function abrirModalMotoboy(login) {
+      tipoAlteracao = "motoboy";
+      loginSelecionado = login;
+
+      $("tituloModal").textContent =
+        "Alterar senha do motoboy";
+
+      $("descricaoModal").textContent =
+        "Login: " + login;
+
+      $("campoSenhaAtual").classList.add("oculto");
+      $("senhaAtual").required = false;
+
+      prepararModal();
+    }
+
+    function abrirModalProprietario() {
+      tipoAlteracao = "proprietario";
+      loginSelecionado = "";
+
+      $("tituloModal").textContent =
+        "Alterar minha senha";
+
+      $("descricaoModal").textContent =
+        "Confirme sua senha atual e escolha uma nova.";
+
+      $("campoSenhaAtual").classList.remove("oculto");
+      $("senhaAtual").required = true;
+
+      prepararModal();
+    }
+
+    function prepararModal() {
+      $("formSenha").reset();
+      limparMensagem("mensagemModal");
+      $("fundoModal").classList.remove("oculto");
+      $("novaSenha").focus();
+    }
+
+    function fecharModal() {
+      $("fundoModal").classList.add("oculto");
+      $("formSenha").reset();
+      limparMensagem("mensagemModal");
+    }
+
+    $("formSenha").addEventListener(
+      "submit",
+      async evento => {
+        evento.preventDefault();
+        limparMensagem("mensagemModal");
+
+        const novaSenha = $("novaSenha").value;
+        const confirmar = $("confirmarSenha").value;
+
+        if (novaSenha !== confirmar) {
+          mostrarMensagem(
+            "mensagemModal",
+            "As senhas digitadas não são iguais."
+          );
+          return;
+        }
+
+        if (
+          novaSenha.length < 8 ||
+          novaSenha.length > 72
+        ) {
+          mostrarMensagem(
+            "mensagemModal",
+            "Use uma senha de 8 a 72 caracteres."
+          );
+          return;
+        }
+
+        bloquearBotao(
+          "btnSalvarSenha",
+          true,
+          "Salvando..."
+        );
+
+        try {
+          if (tipoAlteracao === "motoboy") {
+            await requisicao(
+              "/restaurante/motoboy/senha",
+              "POST",
+              {
+                login: loginSelecionado,
+                nova_senha: novaSenha
+              }
+            );
+
+            fecharModal();
+
+            mostrarMensagem(
+              "mensagemPainel",
+              "Senha do motoboy " +
+                loginSelecionado +
+                " alterada com sucesso.",
+              true
+            );
+          } else if (tipoAlteracao === "proprietario") {
+            await requisicao(
+              "/restaurante/senha",
+              "POST",
+              {
+                senha_atual: $("senhaAtual").value,
+                nova_senha: novaSenha
+              }
+            );
+
+            fecharModal();
+            encerrarSessao();
+
+            mostrarMensagem(
+              "mensagemLogin",
+              "Sua senha foi alterada. " +
+                "Entre novamente com a nova senha.",
+              true
+            );
+          }
+        } catch (error) {
+          tratarErro(error, "mensagemModal");
+        } finally {
+          bloquearBotao(
+            "btnSalvarSenha",
+            false,
+            "Salvar senha"
+          );
+        }
+      }
+    );
+
+    $("btnMinhaSenha").addEventListener(
+      "click",
+      abrirModalProprietario
+    );
+
+    $("btnCancelar").addEventListener(
+      "click",
+      fecharModal
+    );
+
+    $("btnSair").addEventListener(
+      "click",
+      encerrarSessao
+    );
+
+    $("btnAtualizar").addEventListener(
+      "click",
+      carregarMotoboys
+    );
+
+    $("fundoModal").addEventListener(
+      "click",
+      evento => {
+        if (evento.target === $("fundoModal")) {
+          fecharModal();
+        }
+      }
+    );
+
+    document.addEventListener("keydown", evento => {
+      if (
+        evento.key === "Escape" &&
+        !$("fundoModal").classList.contains("oculto")
+      ) {
+        fecharModal();
+      }
+    });
+  </script>
+</body>
+</html>
