@@ -1,20 +1,30 @@
 package com.daroca.entregas;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -25,6 +35,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.webkit.WebViewAssetLoader;
+
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -34,7 +51,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
 
@@ -47,7 +69,11 @@ public class MainActivity extends Activity {
     private static final String FOOD99_URL =
         "https://food-b-h5.99app.com/pt-BR/v2/confirmation-entrega";
 
+    private static final String HOME_URL =
+        "https://appassets.androidplatform.net/assets/leitor.html";
+
     private static final String PREFS = "daroca_licenca_v1";
+    private static final int CAMERA_REQUEST_CODE = 100;
 
     private static final int MARROM = Color.rgb(81, 56, 41);
     private static final int BEGE = Color.rgb(245, 238, 227);
@@ -61,6 +87,9 @@ public class MainActivity extends Activity {
     private TextView textoEstado;
     private Button botaoEntrar;
 
+    private PermissionRequest cameraRequest;
+    private TextRecognizer recognizer;
+
     private final Handler handler =
         new Handler(Looper.getMainLooper());
 
@@ -72,6 +101,7 @@ public class MainActivity extends Activity {
     private boolean preenchido = false;
     private boolean autorizado = false;
     private boolean verificando = false;
+    private boolean bridgeAtiva = false;
 
     private int versaoOperacao = 0;
 
@@ -84,14 +114,40 @@ public class MainActivity extends Activity {
         raiz = findViewById(android.R.id.content);
         webView = findViewById(R.id.webView);
 
+        recognizer = TextRecognition.getClient(
+            TextRecognizerOptions.DEFAULT_OPTIONS
+        );
+
+        WebViewAssetLoader assetLoader =
+            new WebViewAssetLoader.Builder()
+                .addPathHandler(
+                    "/assets/",
+                    new WebViewAssetLoader.AssetsPathHandler(this)
+                )
+                .build();
+
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.getSettings().setAllowFileAccess(false);
+        webView.getSettings().setAllowContentAccess(false);
 
         webView.setWebViewClient(new WebViewClient() {
+
             @Override
-            public void onPageFinished(WebView view, String url) {
+            public WebResourceResponse shouldInterceptRequest(
+                WebView view,
+                WebResourceRequest request
+            ) {
+                return assetLoader.shouldInterceptRequest(
+                    request.getUrl()
+                );
+            }
+
+            @Override
+            public void onPageFinished(
+                WebView view,
+                String url
+            ) {
                 super.onPageFinished(view, url);
 
                 if (!autorizado || orderCode.length() != 8) {
@@ -99,22 +155,82 @@ public class MainActivity extends Activity {
                 }
 
                 if (
-                    plataforma.equals("99") &&
-                    url != null &&
-                    url.startsWith("https://food-b-h5.99app.com/")
-                ) {
-                    iniciarTentativas99(orderCode);
-                }
-
-                if (
-                    plataforma.equals("ifood") &&
+                    "ifood".equals(plataforma) &&
                     url != null &&
                     url.startsWith(
                         "https://confirmacao-entrega-propria.ifood.com.br/"
                     )
                 ) {
-                    iniciarTentativasIfood(orderCode);
+                    iniciarTentativasPreenchimento(orderCode);
                 }
+
+                if (
+                    "99".equals(plataforma) &&
+                    url != null &&
+                    url.startsWith(
+                        "https://food-b-h5.99app.com/"
+                    )
+                ) {
+                    iniciarTentativasPreenchimento(orderCode);
+                }
+            }
+        });
+
+        webView.setWebChromeClient(new WebChromeClient() {
+
+            @Override
+            public void onPermissionRequest(
+                PermissionRequest request
+            ) {
+                runOnUiThread(() -> {
+
+                    if (
+                        !autorizado ||
+                        !estaNaTelaInicial() ||
+                        !"https".equals(
+                            request.getOrigin().getScheme()
+                        ) ||
+                        !"appassets.androidplatform.net".equals(
+                            request.getOrigin().getHost()
+                        )
+                    ) {
+                        request.deny();
+                        return;
+                    }
+
+                    for (String recurso : request.getResources()) {
+                        if (
+                            !PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                                .equals(recurso)
+                        ) {
+                            request.deny();
+                            return;
+                        }
+                    }
+
+                    if (
+                        Build.VERSION.SDK_INT >= 23 &&
+                        checkSelfPermission(
+                            Manifest.permission.CAMERA
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        cameraRequest = request;
+
+                        requestPermissions(
+                            new String[]{
+                                Manifest.permission.CAMERA
+                            },
+                            CAMERA_REQUEST_CODE
+                        );
+
+                    } else {
+                        request.grant(
+                            new String[]{
+                                PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                            }
+                        );
+                    }
+                });
             }
         });
 
@@ -125,8 +241,11 @@ public class MainActivity extends Activity {
         dispositivoId = prefs.getString("dispositivo", "");
 
         if (dispositivoId.isEmpty()) {
+
             dispositivoId =
-                UUID.randomUUID().toString().replace("-", "");
+                UUID.randomUUID()
+                    .toString()
+                    .replace("-", "");
 
             prefs.edit()
                 .putString("dispositivo", dispositivoId)
@@ -156,11 +275,13 @@ public class MainActivity extends Activity {
 
     private int dp(int valor) {
         return (int) (
-            valor * getResources().getDisplayMetrics().density
+            valor *
+            getResources().getDisplayMetrics().density
         );
     }
 
     private void criarTelaLogin() {
+
         ScrollView rolagem = new ScrollView(this);
         rolagem.setFillViewport(true);
         rolagem.setBackgroundColor(BEGE);
@@ -169,7 +290,13 @@ public class MainActivity extends Activity {
         painel = new LinearLayout(this);
         painel.setOrientation(LinearLayout.VERTICAL);
         painel.setGravity(Gravity.CENTER);
-        painel.setPadding(dp(25), dp(35), dp(25), dp(35));
+
+        painel.setPadding(
+            dp(25),
+            dp(35),
+            dp(25),
+            dp(35)
+        );
 
         rolagem.addView(painel);
 
@@ -201,13 +328,19 @@ public class MainActivity extends Activity {
         campoLogin.setSingleLine(true);
         campoLogin.setHint("Login do motoboy");
         campoLogin.setTextSize(16);
+
         campoLogin.setInputType(
             InputType.TYPE_CLASS_TEXT |
             InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         );
+
         campoLogin.setPadding(
-            dp(15), dp(13), dp(15), dp(13)
+            dp(15),
+            dp(13),
+            dp(15),
+            dp(13)
         );
+
         campoLogin.setBackground(
             fundo(Color.WHITE, 10)
         );
@@ -225,13 +358,19 @@ public class MainActivity extends Activity {
         campoSenha.setSingleLine(true);
         campoSenha.setHint("Senha");
         campoSenha.setTextSize(16);
+
         campoSenha.setInputType(
             InputType.TYPE_CLASS_TEXT |
             InputType.TYPE_TEXT_VARIATION_PASSWORD
         );
+
         campoSenha.setPadding(
-            dp(15), dp(13), dp(15), dp(13)
+            dp(15),
+            dp(13),
+            dp(15),
+            dp(13)
         );
+
         campoSenha.setBackground(
             fundo(Color.WHITE, 10)
         );
@@ -251,7 +390,9 @@ public class MainActivity extends Activity {
         botaoEntrar.setAllCaps(false);
         botaoEntrar.setTextSize(16);
         botaoEntrar.setTypeface(null, Typeface.BOLD);
-        botaoEntrar.setBackground(fundo(VERDE, 10));
+        botaoEntrar.setBackground(
+            fundo(VERDE, 10)
+        );
 
         painel.addView(
             botaoEntrar,
@@ -265,13 +406,19 @@ public class MainActivity extends Activity {
         textoEstado.setTextColor(MARROM);
         textoEstado.setTextSize(14);
         textoEstado.setGravity(Gravity.CENTER);
+
         textoEstado.setPadding(
-            dp(5), dp(20), dp(5), dp(10)
+            dp(5),
+            dp(20),
+            dp(5),
+            dp(10)
         );
 
         painel.addView(textoEstado);
 
-        botaoEntrar.setOnClickListener(v -> fazerLogin());
+        botaoEntrar.setOnClickListener(
+            v -> fazerLogin()
+        );
 
         raiz.addView(
             rolagem,
@@ -287,8 +434,19 @@ public class MainActivity extends Activity {
     }
 
     private void mostrarLogin(String mensagem) {
+
         autorizado = false;
+
+        if (bridgeAtiva) {
+            webView.removeJavascriptInterface(
+                "DaRocaAndroid"
+            );
+            bridgeAtiva = false;
+        }
+
+        webView.loadUrl("about:blank");
         webView.setVisibility(View.GONE);
+
         telaAcesso().setVisibility(View.VISIBLE);
 
         campoLogin.setVisibility(View.VISIBLE);
@@ -299,6 +457,7 @@ public class MainActivity extends Activity {
     }
 
     private void mostrarCarregando(String mensagem) {
+
         webView.setVisibility(View.GONE);
         telaAcesso().setVisibility(View.VISIBLE);
 
@@ -309,22 +468,33 @@ public class MainActivity extends Activity {
         textoEstado.setText(mensagem);
     }
 
-    private void mostrarAguardandoLink() {
-        webView.setVisibility(View.GONE);
-        telaAcesso().setVisibility(View.VISIBLE);
+    private void mostrarLeitor() {
 
-        campoLogin.setVisibility(View.GONE);
-        campoSenha.setVisibility(View.GONE);
-        botaoEntrar.setVisibility(View.GONE);
+        if (!autorizado) return;
 
-        textoEstado.setText(
-            "Acesso autorizado!\n\n" +
-            "Agora abra um link de confirmação " +
-            "do iFood ou da 99Food."
-        );
+        handler.removeCallbacksAndMessages(null);
+
+        plataforma = "";
+        orderCode = "";
+        preenchido = false;
+
+        if (!bridgeAtiva) {
+            webView.addJavascriptInterface(
+                new AndroidBridge(),
+                "DaRocaAndroid"
+            );
+
+            bridgeAtiva = true;
+        }
+
+        telaAcesso().setVisibility(View.GONE);
+        webView.setVisibility(View.VISIBLE);
+
+        webView.loadUrl(HOME_URL);
     }
 
     private void guardarToken(String novoToken) {
+
         token = novoToken;
 
         getSharedPreferences(PREFS, MODE_PRIVATE)
@@ -334,6 +504,7 @@ public class MainActivity extends Activity {
     }
 
     private void limparToken() {
+
         token = "";
         autorizado = false;
 
@@ -355,22 +526,31 @@ public class MainActivity extends Activity {
         JSONObject corpo,
         String autorizacao
     ) {
+
         ResultadoAPI resultado = new ResultadoAPI();
         HttpURLConnection conexao = null;
 
         try {
+
             URL url = new URL(API + caminho);
 
-            conexao = (HttpURLConnection) url.openConnection();
+            conexao =
+                (HttpURLConnection) url.openConnection();
+
             conexao.setRequestMethod(metodo);
             conexao.setConnectTimeout(12000);
             conexao.setReadTimeout(12000);
             conexao.setUseCaches(false);
+
             conexao.setRequestProperty(
-                "Accept", "application/json"
+                "Accept",
+                "application/json"
             );
 
-            if (autorizacao != null && !autorizacao.isEmpty()) {
+            if (
+                autorizacao != null &&
+                !autorizacao.isEmpty()
+            ) {
                 conexao.setRequestProperty(
                     "Authorization",
                     "Bearer " + autorizacao
@@ -378,22 +558,29 @@ public class MainActivity extends Activity {
             }
 
             if (corpo != null) {
+
                 conexao.setDoOutput(true);
+
                 conexao.setRequestProperty(
-                    "Content-Type", "application/json"
+                    "Content-Type",
+                    "application/json"
                 );
 
-                byte[] bytes = corpo.toString().getBytes(
-                    StandardCharsets.UTF_8
-                );
+                byte[] bytes =
+                    corpo.toString().getBytes(
+                        StandardCharsets.UTF_8
+                    );
 
-                try (OutputStream saida =
-                         conexao.getOutputStream()) {
+                try (
+                    OutputStream saida =
+                        conexao.getOutputStream()
+                ) {
                     saida.write(bytes);
                 }
             }
 
-            resultado.status = conexao.getResponseCode();
+            resultado.status =
+                conexao.getResponseCode();
 
             InputStream entrada =
                 resultado.status >= 400
@@ -401,42 +588,58 @@ public class MainActivity extends Activity {
                     : conexao.getInputStream();
 
             if (entrada == null) {
-                resultado.erro = "Servidor sem resposta.";
+                resultado.erro =
+                    "Servidor sem resposta.";
                 return resultado;
             }
 
-            StringBuilder texto = new StringBuilder();
+            StringBuilder texto =
+                new StringBuilder();
 
             try (
-                BufferedReader leitor = new BufferedReader(
-                    new InputStreamReader(
-                        entrada, StandardCharsets.UTF_8
+                BufferedReader leitor =
+                    new BufferedReader(
+                        new InputStreamReader(
+                            entrada,
+                            StandardCharsets.UTF_8
+                        )
                     )
-                )
             ) {
+
                 String linha;
 
-                while ((linha = leitor.readLine()) != null) {
+                while (
+                    (linha = leitor.readLine()) != null
+                ) {
                     texto.append(linha);
                 }
             }
 
-            resultado.dados = new JSONObject(texto.toString());
+            resultado.dados =
+                new JSONObject(texto.toString());
 
             if (
                 resultado.status >= 400 ||
-                !resultado.dados.optBoolean("sucesso", false)
+                !resultado.dados.optBoolean(
+                    "sucesso",
+                    false
+                )
             ) {
-                resultado.erro = resultado.dados.optString(
-                    "erro", "Acesso não autorizado."
-                );
+                resultado.erro =
+                    resultado.dados.optString(
+                        "erro",
+                        "Acesso não autorizado."
+                    );
             }
 
         } catch (Exception e) {
+
             resultado.erro =
                 "Não foi possível conectar ao servidor. " +
                 "Verifique a internet.";
+
         } finally {
+
             if (conexao != null) {
                 conexao.disconnect();
             }
@@ -446,14 +649,22 @@ public class MainActivity extends Activity {
     }
 
     private void fazerLogin() {
+
         if (verificando) return;
 
-        String login = campoLogin.getText()
-            .toString().trim().toLowerCase();
+        String login =
+            campoLogin.getText()
+                .toString()
+                .trim()
+                .toLowerCase(Locale.ROOT);
 
-        String senha = campoSenha.getText().toString();
+        String senha =
+            campoSenha.getText().toString();
 
-        if (login.isEmpty() || senha.isEmpty()) {
+        if (
+            login.isEmpty() ||
+            senha.isEmpty()
+        ) {
             textoEstado.setText(
                 "Informe o login e a senha."
             );
@@ -461,19 +672,31 @@ public class MainActivity extends Activity {
         }
 
         verificando = true;
-        final int operacao = ++versaoOperacao;
+
+        final int operacao =
+            ++versaoOperacao;
 
         botaoEntrar.setEnabled(false);
-        textoEstado.setText("Verificando acesso...");
+        textoEstado.setText(
+            "Verificando acesso..."
+        );
 
         new Thread(() -> {
+
             ResultadoAPI resposta;
 
             try {
-                JSONObject dados = new JSONObject();
+
+                JSONObject dados =
+                    new JSONObject();
+
                 dados.put("login", login);
                 dados.put("senha", senha);
-                dados.put("dispositivo_id", dispositivoId);
+
+                dados.put(
+                    "dispositivo_id",
+                    dispositivoId
+                );
 
                 resposta = chamarAPI(
                     "/motoboy/login",
@@ -483,26 +706,40 @@ public class MainActivity extends Activity {
                 );
 
             } catch (Exception e) {
+
                 resposta = new ResultadoAPI();
-                resposta.erro = "Erro ao preparar o login.";
+                resposta.erro =
+                    "Erro ao preparar o login.";
             }
 
-            final ResultadoAPI resultado = resposta;
+            final ResultadoAPI resultado =
+                resposta;
 
             runOnUiThread(() -> {
-                if (operacao != versaoOperacao) return;
+
+                if (
+                    operacao != versaoOperacao
+                ) {
+                    return;
+                }
 
                 verificando = false;
                 botaoEntrar.setEnabled(true);
 
-                if (resultado.erro != null) {
-                    textoEstado.setText(resultado.erro);
+                if (
+                    resultado.erro != null
+                ) {
+                    textoEstado.setText(
+                        resultado.erro
+                    );
                     return;
                 }
 
-                String novoToken = resultado.dados.optString(
-                    "token", ""
-                );
+                String novoToken =
+                    resultado.dados.optString(
+                        "token",
+                        ""
+                    );
 
                 if (novoToken.isEmpty()) {
                     textoEstado.setText(
@@ -515,6 +752,7 @@ public class MainActivity extends Activity {
                 campoSenha.setText("");
 
                 autorizado = true;
+
                 continuarAposAutorizacao();
             });
 
@@ -522,78 +760,117 @@ public class MainActivity extends Activity {
     }
 
     private void verificarLicenca() {
+
         if (token.isEmpty()) {
-            mostrarLogin("Faça login para continuar.");
+            mostrarLogin(
+                "Faça login para continuar."
+            );
             return;
         }
 
         final String tokenAtual = token;
-        final int operacao = ++versaoOperacao;
+        final int operacao =
+            ++versaoOperacao;
 
         verificando = true;
         autorizado = false;
 
         handler.removeCallbacksAndMessages(null);
-        mostrarCarregando("Verificando sua licença...");
+
+        mostrarCarregando(
+            "Verificando sua licença..."
+        );
 
         new Thread(() -> {
-            ResultadoAPI resultado = chamarAPI(
-                "/motoboy/verificar",
-                "GET",
-                null,
-                tokenAtual
-            );
+
+            ResultadoAPI resultado =
+                chamarAPI(
+                    "/motoboy/verificar",
+                    "GET",
+                    null,
+                    tokenAtual
+                );
 
             runOnUiThread(() -> {
-                if (operacao != versaoOperacao) return;
+
+                if (
+                    operacao != versaoOperacao
+                ) {
+                    return;
+                }
 
                 verificando = false;
 
-                if (resultado.erro != null) {
+                if (
+                    resultado.erro != null
+                ) {
+
                     if (
                         resultado.status == 401 ||
                         resultado.status == 403
                     ) {
                         limparToken();
-                        mostrarLogin(resultado.erro);
+
+                        mostrarLogin(
+                            resultado.erro
+                        );
+
                     } else {
                         mostrarFalhaConexao();
                     }
+
                     return;
                 }
 
                 if (
                     resultado.dados == null ||
                     !resultado.dados.optBoolean(
-                        "autorizado", false
+                        "autorizado",
+                        false
                     )
                 ) {
+
                     limparToken();
+
                     mostrarLogin(
                         "Sua licença não está autorizada."
                     );
+
                     return;
                 }
 
                 autorizado = true;
+
                 continuarAposAutorizacao();
             });
+
         }).start();
     }
 
     private void mostrarFalhaConexao() {
+
         mostrarCarregando(
             "Não foi possível verificar a licença.\n\n" +
             "Conecte-se à internet e tente novamente."
         );
 
         Button tentar = new Button(this);
-        tentar.setText("TENTAR NOVAMENTE");
-        tentar.setTextColor(Color.WHITE);
-        tentar.setBackground(fundo(VERDE, 10));
 
-        View anterior = painel.findViewWithTag("tentar");
-        if (anterior != null) painel.removeView(anterior);
+        tentar.setText(
+            "TENTAR NOVAMENTE"
+        );
+
+        tentar.setTextColor(Color.WHITE);
+        tentar.setBackground(
+            fundo(VERDE, 10)
+        );
+
+        View anterior =
+            painel.findViewWithTag("tentar");
+
+        if (anterior != null) {
+            painel.removeView(anterior);
+        }
 
         tentar.setTag("tentar");
 
@@ -606,35 +883,48 @@ public class MainActivity extends Activity {
         );
 
         tentar.setOnClickListener(v -> {
+
             painel.removeView(tentar);
+
             verificarLicenca();
         });
     }
 
     private void continuarAposAutorizacao() {
-        View tentar = painel.findViewWithTag("tentar");
-        if (tentar != null) painel.removeView(tentar);
+
+        View tentar =
+            painel.findViewWithTag("tentar");
+
+        if (tentar != null) {
+            painel.removeView(tentar);
+        }
 
         if (
             orderCode.length() == 8 &&
-            (plataforma.equals("99") ||
-             plataforma.equals("ifood"))
+            (
+                plataforma.equals("99") ||
+                plataforma.equals("ifood")
+            )
         ) {
             abrirConfirmacao();
+
         } else {
-            mostrarAguardandoLink();
+            mostrarLeitor();
         }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+
         super.onNewIntent(intent);
+
         setIntent(intent);
 
         receberLink(intent);
 
         if (!token.isEmpty()) {
             verificarLicenca();
+
         } else {
             mostrarLogin(
                 "Faça login para abrir esta confirmação."
@@ -643,6 +933,7 @@ public class MainActivity extends Activity {
     }
 
     private void receberLink(Intent intent) {
+
         handler.removeCallbacksAndMessages(null);
 
         orderCode = "";
@@ -653,6 +944,7 @@ public class MainActivity extends Activity {
         if (intent == null) return;
 
         Uri data = intent.getData();
+
         if (data == null) return;
 
         String esquema = data.getScheme();
@@ -662,13 +954,21 @@ public class MainActivity extends Activity {
             esquema != null &&
             esquema.equalsIgnoreCase("daroca")
         ) {
-            if ("99".equalsIgnoreCase(host)) {
+
+            if (
+                "99".equalsIgnoreCase(host)
+            ) {
                 plataforma = "99";
-            } else if ("ifood".equalsIgnoreCase(host)) {
+
+            } else if (
+                "ifood".equalsIgnoreCase(host)
+            ) {
                 plataforma = "ifood";
             }
 
-            if (!data.getPathSegments().isEmpty()) {
+            if (
+                !data.getPathSegments().isEmpty()
+            ) {
                 orderCode = digitsOnly(
                     data.getPathSegments().get(0)
                 );
@@ -680,6 +980,7 @@ public class MainActivity extends Activity {
             "stunning-hamster-387b55.netlify.app"
                 .equalsIgnoreCase(host)
         ) {
+
             if (
                 data.getPathSegments().size() >= 2 &&
                 "ifood".equalsIgnoreCase(
@@ -687,6 +988,7 @@ public class MainActivity extends Activity {
                 )
             ) {
                 plataforma = "ifood";
+
                 orderCode = digitsOnly(
                     data.getPathSegments().get(1)
                 );
@@ -700,143 +1002,668 @@ public class MainActivity extends Activity {
     }
 
     private String digitsOnly(String valor) {
+
         if (valor == null) return "";
-        return valor.replaceAll("\\D", "");
+
+        return valor.replaceAll(
+            "\\D",
+            ""
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+        int requestCode,
+        String[] permissions,
+        int[] grantResults
+    ) {
+
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        );
+
+        if (
+            requestCode == CAMERA_REQUEST_CODE &&
+            cameraRequest != null
+        ) {
+
+            if (
+                grantResults.length > 0 &&
+                grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED
+            ) {
+
+                cameraRequest.grant(
+                    new String[]{
+                        PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                    }
+                );
+
+            } else {
+                cameraRequest.deny();
+            }
+
+            cameraRequest = null;
+        }
+    }
+
+    public class AndroidBridge {
+
+        @JavascriptInterface
+        public void reconhecerImagem(
+            String base64
+        ) {
+
+            runOnUiThread(() -> {
+
+                if (
+                    !autorizado ||
+                    !estaNaTelaInicial()
+                ) {
+                    return;
+                }
+
+                processarImagem(base64);
+            });
+        }
+
+        @JavascriptInterface
+        public void abrirConfirmacao(
+            String tipo,
+            String codigo
+        ) {
+
+            runOnUiThread(() -> {
+
+                if (
+                    !autorizado ||
+                    !estaNaTelaInicial()
+                ) {
+                    return;
+                }
+
+                String numero =
+                    digitsOnly(codigo);
+
+                if (
+                    numero.length() != 8
+                ) {
+                    return;
+                }
+
+                if (
+                    !"ifood".equals(tipo) &&
+                    !"99".equals(tipo)
+                ) {
+                    return;
+                }
+
+                plataforma = tipo;
+                orderCode = numero;
+                preenchido = false;
+
+                handler.removeCallbacksAndMessages(null);
+
+                webView.removeJavascriptInterface(
+                    "DaRocaAndroid"
+                );
+
+                bridgeAtiva = false;
+
+                if ("ifood".equals(tipo)) {
+                    webView.loadUrl(IFOOD_URL);
+
+                } else {
+                    webView.loadUrl(FOOD99_URL);
+                }
+            });
+        }
+    }
+
+    private boolean estaNaTelaInicial() {
+
+        return webView != null &&
+            webView.getUrl() != null &&
+            webView.getUrl().startsWith(
+                HOME_URL
+            );
     }
 
     private void abrirConfirmacao() {
-        if (!autorizado) return;
 
-        if (orderCode.length() != 8) {
-            mostrarAguardandoLink();
+        if (
+            !autorizado ||
+            orderCode.length() != 8
+        ) {
+            mostrarLeitor();
             return;
         }
 
-        preenchido = false;
         handler.removeCallbacksAndMessages(null);
+
+        preenchido = false;
+
+        if (bridgeAtiva) {
+
+            webView.removeJavascriptInterface(
+                "DaRocaAndroid"
+            );
+
+            bridgeAtiva = false;
+        }
 
         telaAcesso().setVisibility(View.GONE);
         webView.setVisibility(View.VISIBLE);
 
-        if (plataforma.equals("99")) {
-            Toast.makeText(
-                this,
-                "99Food recebido: " + orderCode,
-                Toast.LENGTH_SHORT
-            ).show();
-
+        if ("99".equals(plataforma)) {
             webView.loadUrl(FOOD99_URL);
-        } else if (plataforma.equals("ifood")) {
-            Toast.makeText(
-                this,
-                "iFood recebido: " + orderCode,
-                Toast.LENGTH_SHORT
-            ).show();
 
+        } else {
             webView.loadUrl(IFOOD_URL);
         }
     }
 
-    /* PREENCHIMENTO AUTOMÁTICO 99FOOD */
+    private void processarImagem(String base64) {
 
-    private void iniciarTentativas99(final String codigo) {
-        preenchido = false;
+        try {
 
-        for (int i = 0; i <= 20; i++) {
-            handler.postDelayed(
-                () -> preencherCodigo99(codigo),
-                i * 500L
+            String imagemLimpa =
+                base64.replaceFirst(
+                    "^data:image/[^;]+;base64,",
+                    ""
+                );
+
+            byte[] bytes =
+                Base64.decode(
+                    imagemLimpa,
+                    Base64.DEFAULT
+                );
+
+            Bitmap bitmap =
+                BitmapFactory.decodeByteArray(
+                    bytes,
+                    0,
+                    bytes.length
+                );
+
+            if (bitmap == null) {
+
+                enviarResultado(
+                    "",
+                    "Não foi possível decodificar a imagem."
+                );
+
+                return;
+            }
+
+            InputImage imagem =
+                InputImage.fromBitmap(
+                    bitmap,
+                    0
+                );
+
+            recognizer.process(imagem)
+                .addOnSuccessListener(resultado -> {
+
+                    String texto =
+                        resultado.getText();
+
+                    String codigo =
+                        encontrarLocalizador(texto);
+
+                    if (!codigo.isEmpty()) {
+
+                        enviarResultado(
+                            codigo,
+                            ""
+                        );
+
+                    } else {
+
+                        enviarResultado(
+                            "",
+                            texto == null ||
+                                texto.trim().isEmpty()
+                                ? "Nenhum texto reconhecido."
+                                : texto
+                        );
+                    }
+                })
+                .addOnFailureListener(erro -> {
+
+                    enviarResultado(
+                        "",
+                        "Erro: " +
+                            erro.getMessage()
+                    );
+                });
+
+        } catch (Exception erro) {
+
+            enviarResultado(
+                "",
+                "Erro ao processar: " +
+                    erro.getMessage()
             );
         }
     }
 
-    private void preencherCodigo99(String codigo) {
+    private String encontrarLocalizador(
+        String texto
+    ) {
+
         if (
-            !autorizado ||
-            preenchido ||
-            codigo == null ||
-            codigo.length() != 8
+            texto == null ||
+            texto.trim().isEmpty()
         ) {
-            return;
+            return "";
         }
 
-        String javascript =
-            "(function(){" +
-            "var codigo='" + codigo + "';" +
-            "var campos=document.querySelectorAll(" +
-            "'.verification-code-input input');" +
-            "if(campos.length!==8)return 'AGUARDANDO';" +
-            "for(var i=0;i<8;i++){" +
-            "var campo=campos[i];" +
-            "var setter=Object.getOwnPropertyDescriptor(" +
-            "window.HTMLInputElement.prototype,'value').set;" +
-            "setter.call(campo,codigo.charAt(i));" +
-            "campo.dispatchEvent(new Event('input'," +
-            "{bubbles:true}));" +
-            "campo.dispatchEvent(new Event('change'," +
-            "{bubbles:true}));" +
-            "}" +
-            "campos[7].focus();" +
-            "return 'PREENCHIDO';" +
-            "})();";
+        String normalizado =
+            texto.toUpperCase(Locale.ROOT)
+                .replace("\r", "\n");
 
-        webView.evaluateJavascript(
-            javascript,
-            resultado -> {
-                if (
-                    resultado != null &&
-                    resultado.contains("PREENCHIDO")
-                ) {
-                    preenchido = true;
+        String[] linhas =
+            normalizado.split("\n");
 
-                    Toast.makeText(
-                        MainActivity.this,
-                        "99Food preenchida: " + codigo,
-                        Toast.LENGTH_SHORT
-                    ).show();
+        String codigo =
+            buscaTradicional(linhas);
+
+        if (!codigo.isEmpty()) {
+            return codigo;
+        }
+
+        return buscaFlexivel(linhas);
+    }
+
+    private String buscaTradicional(
+        String[] linhas
+    ) {
+
+        Pattern palavra =
+            Pattern.compile(
+                "LOCAL[I1L]ZADOR"
+            );
+
+        for (
+            int i = 0;
+            i < linhas.length;
+            i++
+        ) {
+
+            Matcher encontrado =
+                palavra.matcher(linhas[i]);
+
+            if (!encontrado.find()) {
+                continue;
+            }
+
+            String codigo =
+                procurarNumerosProximos(
+                    linhas,
+                    i,
+                    encontrado.end(),
+                    false
+                );
+
+            if (!codigo.isEmpty()) {
+                return codigo;
+            }
+        }
+
+        return "";
+    }
+
+    private String buscaFlexivel(
+        String[] linhas
+    ) {
+
+        for (
+            int i = 0;
+            i < linhas.length;
+            i++
+        ) {
+
+            String linha = linhas[i];
+
+            String comparacao =
+                linha
+                    .replace('0', 'O')
+                    .replace('1', 'I')
+                    .replace('5', 'S')
+                    .replace('8', 'B')
+                    .replaceAll(
+                        "[^A-Z]",
+                        ""
+                    );
+
+            String alvo =
+                "LOCALIZADOR";
+
+            if (
+                comparacao.contains(alvo) ||
+                contemPalavraParecida(
+                    comparacao,
+                    alvo
+                )
+            ) {
+
+                String codigo =
+                    procurarNumerosProximos(
+                        linhas,
+                        i,
+                        0,
+                        true
+                    );
+
+                if (!codigo.isEmpty()) {
+                    return codigo;
                 }
             }
-        );
+        }
+
+        return "";
     }
 
-    /* PREENCHIMENTO AUTOMÁTICO IFOOD */
+    private boolean contemPalavraParecida(
+        String texto,
+        String alvo
+    ) {
 
-    private void iniciarTentativasIfood(final String codigo) {
+        if (
+            texto.length() <
+            alvo.length() - 1
+        ) {
+            return false;
+        }
+
+        int menor =
+            alvo.length() - 1;
+
+        int maior =
+            alvo.length() + 1;
+
+        for (
+            int tamanho = menor;
+            tamanho <= maior;
+            tamanho++
+        ) {
+
+            for (
+                int inicio = 0;
+                inicio + tamanho <= texto.length();
+                inicio++
+            ) {
+
+                String trecho =
+                    texto.substring(
+                        inicio,
+                        inicio + tamanho
+                    );
+
+                if (
+                    distanciaEdicao(
+                        trecho,
+                        alvo
+                    ) <= 1
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private int distanciaEdicao(
+        String a,
+        String b
+    ) {
+
+        int[][] dp =
+            new int[
+                a.length() + 1
+            ][
+                b.length() + 1
+            ];
+
+        for (
+            int i = 0;
+            i <= a.length();
+            i++
+        ) {
+            dp[i][0] = i;
+        }
+
+        for (
+            int j = 0;
+            j <= b.length();
+            j++
+        ) {
+            dp[0][j] = j;
+        }
+
+        for (
+            int i = 1;
+            i <= a.length();
+            i++
+        ) {
+
+            for (
+                int j = 1;
+                j <= b.length();
+                j++
+            ) {
+
+                int custo =
+                    a.charAt(i - 1) ==
+                        b.charAt(j - 1)
+                        ? 0
+                        : 1;
+
+                dp[i][j] =
+                    Math.min(
+                        Math.min(
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1
+                        ),
+                        dp[i - 1][j - 1] +
+                            custo
+                    );
+            }
+        }
+
+        return dp[
+            a.length()
+        ][
+            b.length()
+        ];
+    }
+
+    private String procurarNumerosProximos(
+        String[] linhas,
+        int linhaInicial,
+        int posicaoInicial,
+        boolean flexivel
+    ) {
+
+        List<String> candidatos =
+            new ArrayList<>();
+
+        String primeiraLinha =
+            linhas[linhaInicial];
+
+        if (
+            !flexivel &&
+            posicaoInicial <
+                primeiraLinha.length()
+        ) {
+
+            candidatos.add(
+                primeiraLinha.substring(
+                    posicaoInicial
+                )
+            );
+
+        } else if (flexivel) {
+
+            int separador =
+                primeiraLinha.indexOf(':');
+
+            if (separador >= 0) {
+
+                candidatos.add(
+                    primeiraLinha.substring(
+                        separador + 1
+                    )
+                );
+            }
+        }
+
+        for (
+            int j = linhaInicial + 1;
+            j <= linhaInicial + 2 &&
+                j < linhas.length;
+            j++
+        ) {
+
+            candidatos.add(
+                linhas[j]
+            );
+        }
+
+        StringBuilder acumulado =
+            new StringBuilder();
+
+        for (String trecho : candidatos) {
+
+            String numeros =
+                trecho.replaceAll(
+                    "\\D",
+                    ""
+                );
+
+            if (numeros.isEmpty()) {
+                continue;
+            }
+
+            if (
+                acumulado.length() +
+                    numeros.length() > 8
+            ) {
+                break;
+            }
+
+            acumulado.append(numeros);
+
+            if (
+                acumulado.length() == 8
+            ) {
+                return acumulado.toString();
+            }
+        }
+
+        return "";
+    }
+
+    private void enviarResultado(
+        String codigo,
+        String diagnostico
+    ) {
+
+        runOnUiThread(() -> {
+
+            if (
+                !autorizado ||
+                !estaNaTelaInicial()
+            ) {
+                return;
+            }
+
+            String javascript =
+                "window.receberResultadoOCR(" +
+                    JSONObject.quote(codigo) +
+                    "," +
+                    JSONObject.quote(diagnostico) +
+                    ");";
+
+            webView.evaluateJavascript(
+                javascript,
+                null
+            );
+        });
+    }
+
+    private void iniciarTentativasPreenchimento(
+        String codigo
+    ) {
+
+        handler.removeCallbacksAndMessages(null);
+
         preenchido = false;
 
-        for (int i = 0; i <= 20; i++) {
+        for (
+            int i = 0;
+            i <= 20;
+            i++
+        ) {
+
             handler.postDelayed(
-                () -> preencherCodigoIfood(codigo),
+                () -> preencherCodigo(codigo),
                 i * 500L
             );
         }
     }
 
-    private void preencherCodigoIfood(String codigo) {
+    private void preencherCodigo(
+        String codigo
+    ) {
+
         if (
             !autorizado ||
             preenchido ||
+            webView == null ||
             codigo == null ||
             codigo.length() != 8
         ) {
             return;
         }
 
+        String seletor;
+
+        if ("ifood".equals(plataforma)) {
+
+            seletor =
+                "[data-testid^=\"order-number-input-\"]";
+
+        } else if (
+            "99".equals(plataforma)
+        ) {
+
+            seletor =
+                ".verification-code-input input";
+
+        } else {
+            return;
+        }
+
         String javascript =
             "(function(){" +
-            "var codigo='" + codigo + "';" +
+            "var codigo=" +
+                JSONObject.quote(codigo) + ";" +
             "var campos=document.querySelectorAll(" +
-            "'[data-testid^=\"order-number-input-\"]');" +
+                JSONObject.quote(seletor) + ");" +
             "if(campos.length!==8)return 'AGUARDANDO';" +
-            "for(var i=0;i<8;i++){" +
-            "var campo=campos[i];" +
             "var setter=Object.getOwnPropertyDescriptor(" +
-            "window.HTMLInputElement.prototype,'value').set;" +
-            "setter.call(campo,codigo.charAt(i));" +
-            "campo.dispatchEvent(new Event('input'," +
-            "{bubbles:true}));" +
-            "campo.dispatchEvent(new Event('change'," +
-            "{bubbles:true}));" +
+                "window.HTMLInputElement.prototype,'value').set;" +
+            "for(var i=0;i<8;i++){" +
+            "setter.call(campos[i],codigo.charAt(i));" +
+            "campos[i].dispatchEvent(" +
+                "new Event('input',{bubbles:true}));" +
+            "campos[i].dispatchEvent(" +
+                "new Event('change',{bubbles:true}));" +
             "}" +
             "campos[7].focus();" +
             "return 'PREENCHIDO';" +
@@ -845,15 +1672,25 @@ public class MainActivity extends Activity {
         webView.evaluateJavascript(
             javascript,
             resultado -> {
+
                 if (
                     resultado != null &&
-                    resultado.contains("PREENCHIDO")
+                    resultado.contains(
+                        "PREENCHIDO"
+                    )
                 ) {
+
                     preenchido = true;
 
                     Toast.makeText(
                         MainActivity.this,
-                        "iFood preenchido: " + codigo,
+                        (
+                            "ifood".equals(plataforma)
+                                ? "iFood"
+                                : "99Food"
+                        ) +
+                            " preenchido: " +
+                            codigo,
                         Toast.LENGTH_SHORT
                     ).show();
                 }
@@ -863,19 +1700,10 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (
-            webView.getVisibility() == View.VISIBLE &&
-            webView.canGoBack()
-        ) {
-            webView.goBack();
-        } else if (
-            webView.getVisibility() == View.VISIBLE
-        ) {
-            handler.removeCallbacksAndMessages(null);
-            orderCode = "";
-            plataforma = "";
-            webView.loadUrl("about:blank");
-            mostrarAguardandoLink();
+
+        if (autorizado) {
+            mostrarLeitor();
+
         } else {
             super.onBackPressed();
         }
@@ -883,8 +1711,23 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+
         handler.removeCallbacksAndMessages(null);
-        webView.destroy();
+
+        if (cameraRequest != null) {
+            cameraRequest.deny();
+            cameraRequest = null;
+        }
+
+        if (recognizer != null) {
+            recognizer.close();
+        }
+
+        if (webView != null) {
+            webView.destroy();
+            webView = null;
+        }
+
         super.onDestroy();
     }
 }
