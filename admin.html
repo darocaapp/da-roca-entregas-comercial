@@ -1,267 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DAROÇA APP | Administração</title>
 <style>
-:root {
+:root{
   --marrom:#513829;
   --bege:#f5eee3;
   --verde:#28764b;
   --vermelho:#b83e3e;
-  --amarelo:#a96b00;
 }
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bege);
-  color:var(--marrom);
-}
-header {
-  background:var(--marrom);
-  color:white;
-  padding:24px 16px;
-  text-align:center;
-}
-header h1 { margin:0 0 8px; }
-header p { margin:0; opacity:.85; }
-main {
-  max-width:1050px;
-  margin:25px auto;
-  padding:0 15px;
-}
-.card {
-  background:white;
-  padding:22px;
-  border-radius:14px;
-  margin-bottom:20px;
-  box-shadow:0 3px 12px #00000012;
-}
-h2 { margin-top:0; }
-input {
-  width:100%;
-  padding:13px;
-  border:1px solid #d5c9b9;
-  border-radius:8px;
-  margin:7px 0 13px;
-  font-size:16px;
-}
-button {
-  border:0;
-  border-radius:8px;
-  padding:11px 15px;
-  font-weight:bold;
-  cursor:pointer;
-  color:white;
-  background:var(--verde);
-}
-button:hover { opacity:.88; }
-button:disabled { opacity:.5; cursor:default; }
-.btn-vermelho { background:var(--vermelho); }
-.btn-marrom { background:var(--marrom); }
-.btn-cinza { background:#777; }
-.acoes {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:14px;
-}
-.restaurante {
-  border:1px solid #e4dacf;
-  border-radius:10px;
-  margin:14px 0;
-  overflow:hidden;
-}
-.restaurante-topo {
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:17px;
-  background:white;
-  color:var(--marrom);
-  text-align:left;
-}
-.restaurante-topo:hover { background:#faf6ef; }
-.restaurante-topo h3 { margin:0 0 8px; }
-.restaurante-topo .info { margin:0 0 8px; }
-.restaurante-conteudo {
-  padding:0 17px 17px;
-  border-top:1px solid #eee5db;
-}
-.seta { font-size:25px; flex-shrink:0; }
-.status {
-  display:inline-block;
-  border-radius:20px;
-  padding:5px 10px;
-  font-size:12px;
-  font-weight:bold;
-  margin:2px 5px 2px 0;
-}
-.ativo { background:#d9f2e2; color:#17633a; }
-.bloqueado { background:#fbe0e0; color:#9e2929; }
-.vencida { background:#fbe0e0; color:#9e2929; }
-.proxima { background:#fff0cc; color:#8b5700; }
-.neutro { background:#ece9e5; color:#62584f; }
-.licenca-detalhe {
-  background:#faf6ef;
-  border:1px solid #e4dacf;
-  border-radius:9px;
-  padding:12px;
-  margin-top:14px;
-}
-.licenca-detalhe p { margin:5px 0; }
-.info { color:#766858; font-size:13px; }
-table {
-  border-collapse:collapse;
-  width:100%;
-  margin-top:14px;
-}
-th,td {
-  border-bottom:1px solid #eee;
-  padding:11px;
-  text-align:left;
-  font-size:14px;
-}
-th { background:#f5eee3; }
-.tabela { overflow-x:auto; }
-.vazio {
-  color:#888;
-  text-align:center;
-  padding:20px;
-}
-.oculto { display:none; }
-.mensagem {
-  padding:13px;
-  border-radius:8px;
-  margin:12px 0;
-  background:#f5eee3;
-}
-.erro { background:#fbe0e0; color:#9e2929; }
-.sucesso { background:#d9f2e2; color:#17633a; }
-.credenciais {
-  border:2px solid var(--verde);
-  background:#f7fcf8;
-}
-.aviso {
-  background:#fff2d8;
-  padding:12px;
-  border-radius:8px;
-  font-size:14px;
-}
-.topo-acoes {
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  margin-bottom:15px;
-}
-.motoboy-acoes {
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-.motoboy-acoes button {
-  padding:8px 10px;
-  font-size:12px;
-}
-.estado {
-  font-weight:bold;
-  font-size:12px;
-}
-.estado.sim { color:var(--verde); }
-.estado.nao { color:var(--vermelho); }
-.senha-resultado {
-  background:#f7fcf8;
-  border:1px solid var(--verde);
-  padding:12px;
-  border-radius:8px;
-  margin-top:10px;
-  overflow-wrap:anywhere;
-}
-.senha-resultado strong { font-size:18px; }
-
-/* RESUMO DE MENSALIDADES */
-.resumo-grid {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-}
-.resumo-item {
-  border-radius:12px;
-  padding:17px 12px;
-  text-align:center;
-  border:1px solid #e4dacf;
-  background:#faf8f4;
-}
-.resumo-item strong {
-  display:block;
-  font-size:32px;
-  margin-bottom:8px;
-}
-.resumo-item span {
-  font-size:13px;
-  font-weight:bold;
-}
-.resumo-item.em-dia {
-  background:#e7f5eb;
-  color:#17633a;
-}
-.resumo-item.em-breve {
-  background:#fff1ce;
-  color:#8b5700;
-}
-.resumo-item.atrasadas {
-  background:#fbe4e4;
-  color:#9e2929;
-}
-.resumo-item.sem-data {
-  background:#f0edeb;
-  color:#62584f;
-}
-.alerta-painel {
-  margin-top:15px;
-  padding:13px;
-  border-radius:9px;
-  background:#fff2d8;
-  color:#775000;
-  font-weight:bold;
-  font-size:14px;
-}
-.filtro-acoes {
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin:12px 0;
-}
-.filtro-acoes button {
-  background:#e9e0d5;
-  color:var(--marrom);
-  padding:9px 12px;
-  font-size:13px;
-}
-.filtro-acoes button.selecionado {
-  background:var(--marrom);
-  color:white;
-}
-footer {
-  text-align:center;
-  padding:25px;
-  color:#887768;
-  font-size:13px;
-}
-@media(max-width:650px) {
-  .resumo-grid {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  .card { padding:16px; }
-  .topo-acoes { flex-wrap:wrap; }
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bege);color:var(--marrom)}
+header{background:var(--marrom);color:#fff;text-align:center;padding:24px 15px}
+header h1{margin:0 0 8px}
+header p{margin:0;opacity:.85}
+main{max-width:1050px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:22px;border-radius:14px;margin-bottom:20px;box-shadow:0 3px 12px #00000012}
+h2{margin-top:0}
+input{width:100%;padding:13px;border:1px solid #d5c9b9;border-radius:8px;margin:7px 0 13px;font-size:16px}
+button{border:0;border-radius:8px;padding:11px 15px;font-weight:bold;cursor:pointer;color:white;background:var(--verde)}
+button:hover{opacity:.88}
+button:disabled{opacity:.5;cursor:default}
+.btn-vermelho{background:var(--vermelho)}
+.btn-marrom{background:var(--marrom)}
+.btn-cinza{background:#777}
+.acoes,.motoboy-acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.motoboy-acoes button{padding:8px 10px;font-size:12px}
+.restaurante{border:1px solid #e4dacf;border-radius:10px;margin:14px 0;overflow:hidden}
+.restaurante-topo{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px;background:white;color:var(--marrom);text-align:left}
+.restaurante-topo:hover{background:#faf6ef}
+.restaurante-topo h3{margin:0 0 8px}
+.restaurante-conteudo{padding:0 17px 17px;border-top:1px solid #eee5db}
+.seta{font-size:25px;flex-shrink:0}
+.status{display:inline-block;border-radius:20px;padding:5px 10px;font-size:12px;font-weight:bold;margin:2px 5px 2px 0}
+.ativo{background:#d9f2e2;color:#17633a}
+.bloqueado,.vencida{background:#fbe0e0;color:#9e2929}
+.proxima{background:#fff0cc;color:#8b5700}
+.neutro{background:#ece9e5;color:#62584f}
+.licenca-detalhe{background:#faf6ef;border:1px solid #e4dacf;border-radius:9px;padding:12px;margin-top:14px}
+.licenca-detalhe p{margin:5px 0}
+.info{color:#766858;font-size:13px}
+table{border-collapse:collapse;width:100%;margin-top:14px}
+th,td{border-bottom:1px solid #eee;padding:11px;text-align:left;font-size:14px}
+th{background:#f5eee3}
+.tabela{overflow-x:auto}
+.vazio{color:#888;text-align:center;padding:20px}
+.oculto{display:none!important}
+.mensagem{padding:13px;border-radius:8px;margin:12px 0;background:#f5eee3}
+.erro{background:#fbe0e0;color:#9e2929}
+.sucesso{background:#d9f2e2;color:#17633a}
+.credenciais{border:2px solid var(--verde);background:#f7fcf8}
+.aviso{background:#fff2d8;padding:12px;border-radius:8px;font-size:14px}
+.topo-acoes{display:flex;justify-content:flex-end;gap:8px;margin-bottom:15px}
+.estado{font-weight:bold;font-size:12px}
+.estado.sim{color:var(--verde)}
+.estado.nao{color:var(--vermelho)}
+.senha-resultado{background:#f7fcf8;border:1px solid var(--verde);padding:12px;border-radius:8px;margin-top:10px;overflow-wrap:anywhere}
+.senha-resultado strong{font-size:18px}
+.resumo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.resumo-item{border-radius:12px;padding:17px 12px;text-align:center;border:1px solid #e4dacf;background:#faf8f4}
+.resumo-item strong{display:block;font-size:32px;margin-bottom:8px}
+.resumo-item span{font-size:13px;font-weight:bold}
+.resumo-item.em-dia{background:#e7f5eb;color:#17633a}
+.resumo-item.em-breve{background:#fff1ce;color:#8b5700}
+.resumo-item.atrasadas{background:#fbe4e4;color:#9e2929}
+.resumo-item.sem-data{background:#f0edeb;color:#62584f}
+.alerta-painel{margin-top:15px;padding:13px;border-radius:9px;background:#fff2d8;color:#775000;font-weight:bold;font-size:14px}
+.filtro-acoes{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.filtro-acoes button{background:#e9e0d5;color:var(--marrom);padding:9px 12px;font-size:13px}
+.filtro-acoes button.selecionado{background:var(--marrom);color:white}
+footer{text-align:center;padding:25px;color:#887768;font-size:13px}
+@media(max-width:650px){
+  .resumo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card{padding:16px}
+  .topo-acoes{flex-wrap:wrap}
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -270,60 +88,43 @@ footer {
 </header>
 
 <main>
-
 <section class="card" id="telaLogin">
   <h2>Acesso administrativo</h2>
-  <p class="info">
-    Digite sua chave administrativa da Cloudflare.
-  </p>
+  <p class="info">Digite sua chave administrativa da Cloudflare.</p>
   <form id="formLogin">
     <label for="senhaAdmin">Senha administrativa</label>
-    <input id="senhaAdmin" type="password"
-      required autocomplete="off"
-      placeholder="Digite sua senha">
-    <button type="submit" id="btnEntrar">
-      Entrar no painel
-    </button>
+    <input id="senhaAdmin" type="password" required autocomplete="off" placeholder="Digite sua senha">
+    <button type="submit" id="btnEntrar">Entrar no painel</button>
   </form>
   <div id="mensagemLogin"></div>
 </section>
 
 <div id="painel" class="oculto">
-
   <div class="topo-acoes">
-    <button type="button" class="btn-marrom" id="btnAtualizar">
-      Atualizar dados
-    </button>
-    <button type="button" class="btn-cinza" id="btnSair">
-      Sair
-    </button>
+    <button type="button" class="btn-marrom" id="btnAtualizar">Atualizar dados</button>
+    <button type="button" class="btn-cinza" id="btnSair">Sair</button>
   </div>
 
   <section class="card">
     <h2>Controle de mensalidades</h2>
     <div class="resumo-grid">
       <div class="resumo-item em-dia">
-        <strong id="totalEmDia">0</strong>
-        <span>Em dia</span>
+        <strong id="totalEmDia">0</strong><span>Em dia</span>
       </div>
       <div class="resumo-item em-breve">
-        <strong id="totalProximas">0</strong>
-        <span>Vencem em até 5 dias</span>
+        <strong id="totalProximas">0</strong><span>Vencem em até 5 dias</span>
       </div>
       <div class="resumo-item atrasadas">
-        <strong id="totalVencidas">0</strong>
-        <span>Vencidas</span>
+        <strong id="totalVencidas">0</strong><span>Vencidas</span>
       </div>
       <div class="resumo-item sem-data">
-        <strong id="totalSemData">0</strong>
-        <span>Sem vencimento</span>
+        <strong id="totalSemData">0</strong><span>Sem vencimento</span>
       </div>
     </div>
     <div id="alertaMensalidades"></div>
     <p class="info">
       Os indicadores mostram a situação das licenças.
-      O bloqueio manual do restaurante é controlado
-      separadamente.
+      O bloqueio manual do restaurante é controlado separadamente.
     </p>
   </section>
 
@@ -331,17 +132,12 @@ footer {
     <h2>Adicionar restaurante</h2>
     <form id="formRestaurante">
       <label for="nome">Nome do restaurante</label>
-      <input id="nome" required maxlength="100"
-        placeholder="Ex.: Restaurante Estilo">
+      <input id="nome" required maxlength="100" placeholder="Ex.: Restaurante Estilo">
 
       <label for="codigo">Código do restaurante</label>
-      <input id="codigo" required minlength="3"
-        maxlength="20" pattern="[A-Za-z0-9]+"
-        placeholder="Ex.: estilo">
+      <input id="codigo" required minlength="3" maxlength="20" pattern="[A-Za-z0-9]+" placeholder="Ex.: estilo">
 
-      <button type="submit" id="btnCadastrar">
-        + Adicionar restaurante
-      </button>
+      <button type="submit" id="btnCadastrar">+ Adicionar restaurante</button>
     </form>
     <p class="info">
       Cada restaurante recebe automaticamente 10 logins.
@@ -358,24 +154,17 @@ footer {
     </p>
     <div id="dadosCredenciais"></div>
     <div class="acoes">
-      <button type="button" id="btnCopiar">
-        Copiar todas as credenciais
-      </button>
-      <button type="button" class="btn-marrom"
-        id="btnFecharCredenciais">
-        Já guardei as senhas
-      </button>
+      <button type="button" id="btnCopiar">Copiar todas as credenciais</button>
+      <button type="button" class="btn-marrom" id="btnFecharCredenciais">Já guardei as senhas</button>
     </div>
   </section>
 
   <section class="card">
     <h2>Restaurantes cadastrados</h2>
-    <input id="pesquisa"
-      placeholder="Pesquisar restaurante...">
+    <input id="pesquisa" placeholder="Pesquisar restaurante...">
 
     <div class="filtro-acoes" id="filtros">
-      <button type="button" data-filtro="todos"
-        class="selecionado">Todos</button>
+      <button type="button" data-filtro="todos" class="selecionado">Todos</button>
       <button type="button" data-filtro="em-dia">Em dia</button>
       <button type="button" data-filtro="proxima">Vencem em breve</button>
       <button type="button" data-filtro="vencida">Vencidas</button>
@@ -385,7 +174,6 @@ footer {
     <div id="mensagemLista"></div>
     <div id="lista"></div>
   </section>
-
 </div>
 </main>
 
@@ -394,8 +182,7 @@ footer {
 <script>
 "use strict";
 
-const API =
-  "https://daroca-licencas.darocarestaurante1.workers.dev";
+const API = "https://daroca-licencas.darocarestaurante1.workers.dev";
 
 let chaveAdmin = "";
 let restaurantes = [];
@@ -404,7 +191,6 @@ let filtroAtual = "todos";
 
 const restaurantesAbertos = new Set();
 const loginsAbertos = new Set();
-
 const $ = id => document.getElementById(id);
 
 function mensagem(id, texto, tipo = "") {
@@ -432,16 +218,14 @@ function criarBotao(texto, classe, acao) {
 }
 
 function normalizarCodigo(valor) {
-  return String(valor || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
+  return String(valor || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 async function requisicao(caminho, metodo = "GET", dados) {
   const opcoes = {
     method: metodo,
     headers: {
-      "Authorization": "Bearer " + chaveAdmin
+      Authorization: "Bearer " + chaveAdmin
     },
     cache: "no-store"
   };
@@ -456,8 +240,7 @@ async function requisicao(caminho, metodo = "GET", dados) {
     resposta = await fetch(API + caminho, opcoes);
   } catch {
     throw new Error(
-      "Não foi possível conectar ao servidor. " +
-      "Verifique sua internet e a Cloudflare."
+      "Não foi possível conectar ao servidor. Verifique sua internet e a Cloudflare."
     );
   }
 
@@ -480,7 +263,7 @@ async function requisicao(caminho, metodo = "GET", dados) {
   return resultado;
 }
 
-/* DATAS E SITUAÇÃO DAS LICENÇAS */
+/* DATAS E LICENÇAS */
 
 function hojeUTC() {
   return new Date().toISOString().slice(0, 10);
@@ -495,32 +278,25 @@ function formatarData(valor) {
 }
 
 function diasRestantes(vencimento) {
-  if (!vencimento ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(vencimento)) {
+  if (!vencimento || !/^\d{4}-\d{2}-\d{2}$/.test(vencimento)) {
     return null;
   }
-
   const data = Date.parse(vencimento + "T00:00:00Z");
   const hoje = Date.parse(hojeUTC() + "T00:00:00Z");
-
   if (!Number.isFinite(data)) return null;
-
   return Math.round((data - hoje) / 86400000);
 }
 
 function tipoLicenca(r) {
   if (!r.vencimento) return "sem-data";
-
   const dias = diasRestantes(r.vencimento);
-  if (dias === null) return "vencida";
-  if (dias < 0) return "vencida";
+  if (dias === null || dias < 0) return "vencida";
   if (dias <= 5) return "proxima";
   return "em-dia";
 }
 
 function textoLicenca(r) {
   const tipo = tipoLicenca(r);
-
   if (tipo === "sem-data") return "SEM VENCIMENTO";
   if (tipo === "vencida") return "VENCIDA";
   if (tipo === "proxima") return "VENCE EM BREVE";
@@ -546,8 +322,8 @@ function detalheVencimento(r) {
 function atualizarResumo() {
   const totais = {
     "em-dia": 0,
-    "proxima": 0,
-    "vencida": 0,
+    proxima: 0,
+    vencida: 0,
     "sem-data": 0
   };
 
@@ -556,38 +332,38 @@ function atualizarResumo() {
   });
 
   $("totalEmDia").textContent = totais["em-dia"];
-  $("totalProximas").textContent = totais["proxima"];
-  $("totalVencidas").textContent = totais["vencida"];
+  $("totalProximas").textContent = totais.proxima;
+  $("totalVencidas").textContent = totais.vencida;
   $("totalSemData").textContent = totais["sem-data"];
 
   const alerta = $("alertaMensalidades");
   alerta.replaceChildren();
 
   if (totais.proxima || totais.vencida) {
-    const div = criarElemento(
-      "div",
-      "Atenção: " + totais.proxima +
-      " licença(s) vencem em até 5 dias e " +
-      totais.vencida + " já estão vencidas.",
-      "alerta-painel"
+    alerta.appendChild(
+      criarElemento(
+        "div",
+        "Atenção: " + totais.proxima +
+          " licença(s) vencem em até 5 dias e " +
+          totais.vencida + " já estão vencidas.",
+        "alerta-painel"
+      )
     );
-    alerta.appendChild(div);
   }
 }
 
-/* LOGIN E LISTAGEM */
+/* LOGIN */
 
 async function carregarRestaurantes() {
   mensagem("mensagemLista", "Carregando restaurantes...");
-
   try {
     const resultado = await requisicao("/admin/restaurantes");
     restaurantes = resultado.restaurantes || [];
     mensagem("mensagemLista", "");
     atualizarResumo();
     renderizar();
-  } catch (erro) {
-    mensagem("mensagemLista", erro.message, "erro");
+  } catch (e) {
+    mensagem("mensagemLista", e.message, "erro");
   }
 }
 
@@ -603,9 +379,9 @@ $("formLogin").addEventListener("submit", async evento => {
     $("painel").classList.remove("oculto");
     mensagem("mensagemLogin", "");
     await carregarRestaurantes();
-  } catch (erro) {
+  } catch (e) {
     chaveAdmin = "";
-    mensagem("mensagemLogin", erro.message, "erro");
+    mensagem("mensagemLogin", e.message, "erro");
   } finally {
     $("btnEntrar").disabled = false;
   }
@@ -675,8 +451,8 @@ $("formRestaurante").addEventListener(
       );
 
       await carregarRestaurantes();
-    } catch (erro) {
-      mensagem("mensagemCadastro", erro.message, "erro");
+    } catch (e) {
+      mensagem("mensagemCadastro", e.message, "erro");
     } finally {
       $("btnCadastrar").disabled = false;
     }
@@ -732,8 +508,8 @@ function mostrarCredenciais(resultado) {
 
   $("cardCredenciais").classList.remove("oculto");
   $("cardCredenciais").scrollIntoView({
-    behavior:"smooth",
-    block:"start"
+    behavior: "smooth",
+    block: "start"
   });
 }
 
@@ -748,8 +524,7 @@ $("btnCopiar").addEventListener("click", async () => {
 
 $("btnFecharCredenciais").addEventListener("click", () => {
   if (!confirm(
-    "Você já guardou todas as senhas? " +
-    "Elas não poderão ser exibidas novamente."
+    "Você já guardou todas as senhas? Elas não poderão ser exibidas novamente."
   )) return;
 
   credenciaisTexto = "";
@@ -757,7 +532,7 @@ $("btnFecharCredenciais").addEventListener("click", () => {
   $("cardCredenciais").classList.add("oculto");
 });
 
-/* CONTROLE DO RESTAURANTE */
+/* GERENCIAMENTO DO RESTAURANTE */
 
 async function alternarStatus(codigo) {
   const restaurante = restaurantes.find(r => r.codigo === codigo);
@@ -771,10 +546,12 @@ async function alternarStatus(codigo) {
   )) return;
 
   try {
-    await requisicao("/admin/status", "POST", { codigo, ativo });
+    await requisicao(
+      "/admin/status", "POST", { codigo, ativo }
+    );
     await carregarRestaurantes();
-  } catch (erro) {
-    alert(erro.message);
+  } catch (e) {
+    alert(e.message);
   }
 }
 
@@ -788,10 +565,9 @@ async function renovarLicenca(codigo) {
 
   if (!confirm(
     "Renovar a licença de " + restaurante.nome +
-    " por 30 dias?\n\n" +
-    "Vencimento atual: " + anterior + "\n\n" +
-    "Se a licença estiver em dia, os 30 dias " +
-    "serão somados ao vencimento atual."
+    " por 30 dias?\n\nVencimento atual: " +
+    anterior +
+    "\n\nSe a licença estiver em dia, os 30 dias serão somados ao vencimento atual."
   )) return;
 
   try {
@@ -802,8 +578,7 @@ async function renovarLicenca(codigo) {
     await carregarRestaurantes();
 
     alert(
-      "Licença renovada com sucesso!\n\n" +
-      "Novo vencimento: " +
+      "Licença renovada com sucesso!\n\nNovo vencimento: " +
       formatarData(resultado.novo_vencimento) +
       (
         resultado.restaurante &&
@@ -835,21 +610,98 @@ async function excluirRestaurante(codigo) {
   }
 
   try {
-    await requisicao("/admin/excluir", "POST", { codigo });
+    await requisicao(
+      "/admin/excluir", "POST", { codigo }
+    );
     restaurantesAbertos.delete(codigo);
     loginsAbertos.delete(codigo);
     await carregarRestaurantes();
-  } catch (erro) {
-    alert(erro.message);
+  } catch (e) {
+    alert(e.message);
   }
 }
 
-/* GERENCIAMENTO INDIVIDUAL DOS MOTOBOYS */
+/* NOVA SENHA DO PROPRIETÁRIO */
+
+async function redefinirSenhaProprietario(restaurante, container) {
+  if (!confirm(
+    "Gerar uma NOVA senha de acesso para " +
+    restaurante.nome +
+    "?\n\nA senha anterior deixará de funcionar."
+  )) return;
+
+  try {
+    const resultado = await requisicao(
+      "/admin/restaurante/senha",
+      "POST",
+      { codigo: restaurante.codigo }
+    );
+
+    container.replaceChildren();
+
+    const caixa = criarElemento(
+      "div", undefined, "senha-resultado"
+    );
+
+    caixa.appendChild(
+      criarElemento(
+        "p",
+        "Nova senha do proprietário de " +
+          restaurante.nome + ":"
+      )
+    );
+
+    caixa.appendChild(
+      criarElemento("strong", resultado.nova_senha)
+    );
+
+    caixa.appendChild(
+      criarElemento(
+        "p",
+        "Copie agora. Esta senha não poderá ser consultada depois.",
+        "info"
+      )
+    );
+
+    caixa.appendChild(
+      criarBotao(
+        "Copiar senha",
+        "",
+        async () => {
+          try {
+            await navigator.clipboard.writeText(
+              resultado.nova_senha
+            );
+            alert("Senha copiada!");
+          } catch {
+            alert("Selecione e copie a senha exibida acima.");
+          }
+        }
+      )
+    );
+
+    caixa.appendChild(
+      criarBotao(
+        "Já guardei",
+        "btn-cinza",
+        () => container.replaceChildren()
+      )
+    );
+
+    container.appendChild(caixa);
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+/* GERENCIAMENTO DOS MOTOBOYS */
 
 async function mostrarLogins(restaurante, container) {
   container.replaceChildren();
   container.appendChild(
-    criarElemento("p", "Consultando motoboys...", "info")
+    criarElemento(
+      "p", "Consultando motoboys...", "info"
+    )
   );
 
   try {
@@ -912,7 +764,7 @@ async function mostrarLogins(restaurante, container) {
               await requisicao(
                 "/admin/motoboy/status",
                 "POST",
-                { login:m.login, ativo }
+                { login: m.login, ativo }
               );
               await mostrarLogins(restaurante, container);
             } catch (e) {
@@ -928,7 +780,8 @@ async function mostrarLogins(restaurante, container) {
           "btn-marrom",
           async () => {
             if (!confirm(
-              "Gerar uma NOVA senha para " + m.login +
+              "Gerar uma NOVA senha para " +
+              m.login +
               "? A senha antiga deixará de funcionar."
             )) return;
 
@@ -936,7 +789,7 @@ async function mostrarLogins(restaurante, container) {
               const r = await requisicao(
                 "/admin/motoboy/senha",
                 "POST",
-                { login:m.login }
+                { login: m.login }
               );
 
               const resultadoSenha = criarElemento(
@@ -945,7 +798,8 @@ async function mostrarLogins(restaurante, container) {
 
               resultadoSenha.appendChild(
                 criarElemento(
-                  "p", "Nova senha de " + m.login + ":"
+                  "p",
+                  "Nova senha de " + m.login + ":"
                 )
               );
 
@@ -962,14 +816,22 @@ async function mostrarLogins(restaurante, container) {
               );
 
               resultadoSenha.appendChild(
-                criarBotao("Copiar senha", "", async () => {
-                  try {
-                    await navigator.clipboard.writeText(r.nova_senha);
-                    alert("Senha copiada!");
-                  } catch {
-                    alert("Não foi possível copiar automaticamente.");
+                criarBotao(
+                  "Copiar senha",
+                  "",
+                  async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        r.nova_senha
+                      );
+                      alert("Senha copiada!");
+                    } catch {
+                      alert(
+                        "Selecione e copie a senha exibida acima."
+                      );
+                    }
                   }
-                })
+                )
               );
 
               resultadoSenha.appendChild(
@@ -1004,7 +866,7 @@ async function mostrarLogins(restaurante, container) {
             await requisicao(
               "/admin/motoboy/desvincular",
               "POST",
-              { login:m.login }
+              { login: m.login }
             );
             await mostrarLogins(restaurante, container);
           } catch (e) {
@@ -1031,9 +893,7 @@ async function mostrarLogins(restaurante, container) {
       criarElemento(
         "p",
         "As senhas antigas não podem ser recuperadas. " +
-        "O bloqueio e o vínculo de celular são verificados " +
-        "pelo servidor. O aplicativo Android ainda precisa " +
-        "ser integrado à autenticação.",
+        "O bloqueio e o vínculo de celular são verificados pelo servidor.",
         "info"
       )
     );
@@ -1115,10 +975,10 @@ function renderizar() {
 
     const tipo = tipoLicenca(r);
     const classeTipo = {
-      "em-dia":"ativo",
-      "proxima":"proxima",
-      "vencida":"vencida",
-      "sem-data":"neutro"
+      "em-dia": "ativo",
+      proxima: "proxima",
+      vencida: "vencida",
+      "sem-data": "neutro"
     };
 
     informacoes.appendChild(
@@ -1196,8 +1056,7 @@ function renderizar() {
         criarElemento(
           "p",
           "Sem data: acesso permitido enquanto o restaurante " +
-          "estiver ativo. A primeira renovação inicia " +
-          "o prazo de 30 dias.",
+          "estiver ativo. A primeira renovação inicia o prazo de 30 dias.",
           "info"
         )
       );
@@ -1236,6 +1095,20 @@ function renderizar() {
 
     acoes.appendChild(botaoLogins);
 
+    const resultadoSenhaProprietario =
+      criarElemento("div");
+
+    acoes.appendChild(
+      criarBotao(
+        "Nova senha do proprietário",
+        "btn-marrom",
+        () => redefinirSenhaProprietario(
+          r,
+          resultadoSenhaProprietario
+        )
+      )
+    );
+
     acoes.appendChild(
       criarBotao(
         ativo
@@ -1255,6 +1128,7 @@ function renderizar() {
     );
 
     conteudo.appendChild(acoes);
+    conteudo.appendChild(resultadoSenhaProprietario);
     conteudo.appendChild(detalhes);
 
     if (aberto && loginsAbertos.has(r.codigo)) {
@@ -1285,6 +1159,5 @@ document.querySelectorAll("[data-filtro]").forEach(botao => {
   });
 });
 </script>
-
 </body>
 </html>
