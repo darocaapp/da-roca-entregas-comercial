@@ -99,9 +99,19 @@ button:disabled { opacity:.5; cursor:default; }
   padding:5px 10px;
   font-size:12px;
   font-weight:bold;
+  margin:2px 5px 2px 0;
 }
 .ativo { background:#d9f2e2; color:#17633a; }
 .bloqueado { background:#fbe0e0; color:#9e2929; }
+.vencida { background:#fff0cc; color:#8b5700; }
+.licenca-detalhe {
+  background:#faf6ef;
+  border:1px solid #e4dacf;
+  border-radius:9px;
+  padding:12px;
+  margin-top:14px;
+}
+.licenca-detalhe p { margin:5px 0; }
 .info { color:#766858; font-size:13px; }
 table {
   border-collapse:collapse;
@@ -574,6 +584,81 @@ async function alternarStatus(codigo) {
   }
 }
 
+/* RENOVAÇÃO DE LICENÇAS */
+
+async function renovarLicenca(codigo) {
+  const restaurante = restaurantes.find(
+    r => r.codigo === codigo
+  );
+
+  if (!restaurante) return;
+
+  const anterior = restaurante.vencimento
+    ? formatarData(restaurante.vencimento)
+    : "Sem vencimento definido";
+
+  if (!confirm(
+    "Renovar a licença de " + restaurante.nome +
+    " por 30 dias?\n\n" +
+    "Vencimento atual: " + anterior + "\n\n" +
+    "Se a licença estiver em dia, os 30 dias " +
+    "serão somados ao vencimento atual."
+  )) return;
+
+  try {
+    const resultado = await requisicao(
+      "/admin/renovar",
+      "POST",
+      { codigo }
+    );
+
+    await carregarRestaurantes();
+
+    alert(
+      "Licença renovada com sucesso!\n\n" +
+      "Novo vencimento: " +
+      formatarData(resultado.novo_vencimento) +
+      (
+        resultado.restaurante &&
+        !resultado.restaurante.ativo
+          ? "\n\nAtenção: o restaurante continua " +
+            "bloqueado manualmente."
+          : ""
+      )
+    );
+
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function formatarData(valor) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      String(valor || "")
+    )
+  ) {
+    return "Não definido";
+  }
+
+  const [ano, mes, dia] = valor.split("-");
+  return dia + "/" + mes + "/" + ano;
+}
+
+function situacaoLicenca(r) {
+  if (!r.vencimento) {
+    return "SEM VENCIMENTO";
+  }
+
+  const hoje = new Date()
+    .toISOString()
+    .slice(0, 10);
+
+  return r.vencimento < hoje
+    ? "VENCIDA"
+    : "EM DIA";
+}
+
 async function excluirRestaurante(codigo) {
   const restaurante = restaurantes.find(
     r => r.codigo === codigo
@@ -595,12 +680,17 @@ async function excluirRestaurante(codigo) {
   }
 
   try {
-    await requisicao("/admin/excluir", "POST", { codigo });
+    await requisicao(
+      "/admin/excluir",
+      "POST",
+      { codigo }
+    );
 
     restaurantesAbertos.delete(codigo);
     loginsAbertos.delete(codigo);
 
     await carregarRestaurantes();
+
   } catch (erro) {
     alert(erro.message);
   }
@@ -610,8 +700,13 @@ async function excluirRestaurante(codigo) {
 
 async function mostrarLogins(restaurante, container) {
   container.replaceChildren();
+
   container.appendChild(
-    criarElemento("p", "Consultando motoboys...", "info")
+    criarElemento(
+      "p",
+      "Consultando motoboys...",
+      "info"
+    )
   );
 
   try {
@@ -635,9 +730,12 @@ async function mostrarLogins(restaurante, container) {
     for (const m of resultado.motoboys || []) {
       const linha = criarElemento("tr");
 
-      linha.appendChild(criarElemento("td", m.login));
+      linha.appendChild(
+        criarElemento("td", m.login)
+      );
 
       const celulaStatus = criarElemento("td");
+
       celulaStatus.appendChild(
         criarElemento(
           "span",
@@ -645,23 +743,29 @@ async function mostrarLogins(restaurante, container) {
           "estado " + (m.ativo ? "sim" : "nao")
         )
       );
+
       linha.appendChild(celulaStatus);
 
-      // dispositivo_id é um identificador técnico,
+      // Identificador técnico do aparelho,
       // não é o número de telefone.
       linha.appendChild(
         criarElemento(
           "td",
-          m.dispositivo_id ? "Vinculado" : "Sem vínculo"
+          m.dispositivo_id
+            ? "Vinculado"
+            : "Sem vínculo"
         )
       );
 
       const celulaAcoes = criarElemento("td");
+
       const acoes = criarElemento(
-        "div", undefined, "motoboy-acoes"
+        "div",
+        undefined,
+        "motoboy-acoes"
       );
 
-      // Bloquear ou liberar
+      // Bloquear ou liberar motoboy.
       acoes.appendChild(
         criarBotao(
           m.ativo ? "Bloquear" : "Liberar",
@@ -678,10 +782,17 @@ async function mostrarLogins(restaurante, container) {
               await requisicao(
                 "/admin/motoboy/status",
                 "POST",
-                { login:m.login, ativo }
+                {
+                  login: m.login,
+                  ativo
+                }
               );
 
-              await mostrarLogins(restaurante, container);
+              await mostrarLogins(
+                restaurante,
+                container
+              );
+
             } catch (e) {
               alert(e.message);
             }
@@ -689,14 +800,15 @@ async function mostrarLogins(restaurante, container) {
         )
       );
 
-      // Gerar nova senha
+      // Gerar nova senha.
       acoes.appendChild(
         criarBotao(
           "Nova senha",
           "btn-marrom",
           async () => {
             if (!confirm(
-              "Gerar uma NOVA senha para " + m.login +
+              "Gerar uma NOVA senha para " +
+              m.login +
               "? A senha antiga deixará de funcionar."
             )) return;
 
@@ -704,42 +816,56 @@ async function mostrarLogins(restaurante, container) {
               const r = await requisicao(
                 "/admin/motoboy/senha",
                 "POST",
-                { login:m.login }
+                { login: m.login }
               );
 
               const resultadoSenha = criarElemento(
-                "div", undefined, "senha-resultado"
-              );
-
-              resultadoSenha.appendChild(
-                criarElemento(
-                  "p", "Nova senha de " + m.login + ":"
-                )
-              );
-
-              resultadoSenha.appendChild(
-                criarElemento("strong", r.nova_senha)
+                "div",
+                undefined,
+                "senha-resultado"
               );
 
               resultadoSenha.appendChild(
                 criarElemento(
                   "p",
-                  "Copie agora. Esta senha não poderá ser consultada depois.",
+                  "Nova senha de " + m.login + ":"
+                )
+              );
+
+              resultadoSenha.appendChild(
+                criarElemento(
+                  "strong",
+                  r.nova_senha
+                )
+              );
+
+              resultadoSenha.appendChild(
+                criarElemento(
+                  "p",
+                  "Copie agora. Esta senha não poderá " +
+                  "ser consultada depois.",
                   "info"
                 )
               );
 
               resultadoSenha.appendChild(
-                criarBotao("Copiar senha", "", async () => {
-                  try {
-                    await navigator.clipboard.writeText(
-                      r.nova_senha
-                    );
-                    alert("Senha copiada!");
-                  } catch {
-                    alert("Não foi possível copiar automaticamente.");
+                criarBotao(
+                  "Copiar senha",
+                  "",
+                  async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        r.nova_senha
+                      );
+
+                      alert("Senha copiada!");
+                    } catch {
+                      alert(
+                        "Não foi possível copiar automaticamente."
+                      );
+                    }
                   }
-                })
+                )
               );
 
               resultadoSenha.appendChild(
@@ -763,23 +889,28 @@ async function mostrarLogins(restaurante, container) {
         )
       );
 
-      // Desvincular celular
+      // Desvincular aparelho.
       const desvincular = criarBotao(
         "Desvincular",
         "btn-cinza",
         async () => {
           if (!confirm(
-            "Desvincular o celular de " + m.login + "?"
+            "Desvincular o celular de " +
+            m.login + "?"
           )) return;
 
           try {
             await requisicao(
               "/admin/motoboy/desvincular",
               "POST",
-              { login:m.login }
+              { login: m.login }
             );
 
-            await mostrarLogins(restaurante, container);
+            await mostrarLogins(
+              restaurante,
+              container
+            );
+
           } catch (e) {
             alert(e.message);
           }
@@ -795,7 +926,9 @@ async function mostrarLogins(restaurante, container) {
     }
 
     const rolagem = criarElemento(
-      "div", undefined, "tabela"
+      "div",
+      undefined,
+      "tabela"
     );
 
     rolagem.appendChild(tabela);
@@ -805,8 +938,9 @@ async function mostrarLogins(restaurante, container) {
       criarElemento(
         "p",
         "As senhas antigas não podem ser recuperadas. " +
-        "O bloqueio e o vínculo de celular serão aplicados " +
-        "no aplicativo quando integrarmos a autenticação.",
+        "O bloqueio e o vínculo de celular já são " +
+        "verificados pelo servidor. O aplicativo Android " +
+        "ainda precisa ser integrado à autenticação.",
         "info"
       )
     );
@@ -815,7 +949,11 @@ async function mostrarLogins(restaurante, container) {
     container.replaceChildren();
 
     container.appendChild(
-      criarElemento("p", e.message, "mensagem erro")
+      criarElemento(
+        "p",
+        e.message,
+        "mensagem erro"
+      )
     );
 
     container.appendChild(
@@ -832,7 +970,9 @@ async function mostrarLogins(restaurante, container) {
 
 function renderizar() {
   const lista = $("lista");
-  const pesquisa = $("pesquisa").value.toLowerCase().trim();
+
+  const pesquisa = $("pesquisa")
+    .value.toLowerCase().trim();
 
   lista.replaceChildren();
 
@@ -854,12 +994,17 @@ function renderizar() {
 
   encontrados.forEach(r => {
     const card = criarElemento(
-      "div", undefined, "restaurante"
+      "div",
+      undefined,
+      "restaurante"
     );
 
     const topo = criarElemento(
-      "button", undefined, "restaurante-topo"
+      "button",
+      undefined,
+      "restaurante-topo"
     );
+
     topo.type = "button";
 
     const informacoes = criarElemento("div");
@@ -870,7 +1015,9 @@ function renderizar() {
 
     informacoes.appendChild(
       criarElemento(
-        "p", "Código: " + r.codigo, "info"
+        "p",
+        "Código: " + r.codigo,
+        "info"
       )
     );
 
@@ -880,21 +1027,45 @@ function renderizar() {
       criarElemento(
         "span",
         ativo ? "ATIVO" : "BLOQUEADO",
-        "status " + (ativo ? "ativo" : "bloqueado")
+        "status " +
+        (ativo ? "ativo" : "bloqueado")
       )
     );
 
-    const aberto = restaurantesAbertos.has(r.codigo);
+    const situacao = situacaoLicenca(r);
+
+    informacoes.appendChild(
+      criarElemento(
+        "span",
+        "LICENÇA " + situacao,
+        "status " +
+        (
+          situacao === "VENCIDA"
+            ? "vencida"
+            : situacao === "EM DIA"
+              ? "ativo"
+              : ""
+        )
+      )
+    );
+
+    const aberto = restaurantesAbertos.has(
+      r.codigo
+    );
 
     const seta = criarElemento(
-      "span", aberto ? "⌃" : "⌄", "seta"
+      "span",
+      aberto ? "⌃" : "⌄",
+      "seta"
     );
 
     topo.appendChild(informacoes);
     topo.appendChild(seta);
 
     const conteudo = criarElemento(
-      "div", undefined, "restaurante-conteudo"
+      "div",
+      undefined,
+      "restaurante-conteudo"
     );
 
     conteudo.id = "conteudo-" + r.codigo;
@@ -903,11 +1074,20 @@ function renderizar() {
       conteudo.classList.add("oculto");
     }
 
-    topo.setAttribute("aria-expanded", String(aberto));
-    topo.setAttribute("aria-controls", conteudo.id);
+    topo.setAttribute(
+      "aria-expanded",
+      String(aberto)
+    );
+
+    topo.setAttribute(
+      "aria-controls",
+      conteudo.id
+    );
 
     topo.addEventListener("click", () => {
-      const vaiAbrir = !restaurantesAbertos.has(r.codigo);
+      const vaiAbrir = !restaurantesAbertos.has(
+        r.codigo
+      );
 
       if (vaiAbrir) {
         restaurantesAbertos.add(r.codigo);
@@ -915,16 +1095,63 @@ function renderizar() {
         restaurantesAbertos.delete(r.codigo);
       }
 
-      conteudo.classList.toggle("oculto", !vaiAbrir);
+      conteudo.classList.toggle(
+        "oculto",
+        !vaiAbrir
+      );
+
       seta.textContent = vaiAbrir ? "⌃" : "⌄";
 
       topo.setAttribute(
-        "aria-expanded", String(vaiAbrir)
+        "aria-expanded",
+        String(vaiAbrir)
       );
     });
 
+    // Informações de vencimento.
+    const licenca = criarElemento(
+      "div",
+      undefined,
+      "licenca-detalhe"
+    );
+
+    licenca.appendChild(
+      criarElemento(
+        "p",
+        "Vencimento: " +
+        formatarData(r.vencimento)
+      )
+    );
+
+    licenca.appendChild(
+      criarElemento(
+        "p",
+        "Situação: " + situacaoLicenca(r)
+      )
+    );
+
+    if (!r.vencimento) {
+      licenca.appendChild(
+        criarElemento(
+          "p",
+          "Sem data: acesso permitido enquanto " +
+          "o restaurante estiver ativo. " +
+          "A primeira renovação inicia o prazo " +
+          "de 30 dias.",
+          "info"
+        )
+      );
+    }
+
+    conteudo.appendChild(licenca);
+
     const detalhes = criarElemento("div");
-    const acoes = criarElemento("div", undefined, "acoes");
+
+    const acoes = criarElemento(
+      "div",
+      undefined,
+      "acoes"
+    );
 
     const botaoLogins = criarBotao(
       "Gerenciar 10 motoboys",
@@ -932,26 +1159,45 @@ function renderizar() {
       () => {
         if (loginsAbertos.has(r.codigo)) {
           loginsAbertos.delete(r.codigo);
+
           detalhes.replaceChildren();
-          botaoLogins.textContent = "Gerenciar 10 motoboys";
+
+          botaoLogins.textContent =
+            "Gerenciar 10 motoboys";
         } else {
           loginsAbertos.add(r.codigo);
-          botaoLogins.textContent = "Ocultar motoboys";
+
+          botaoLogins.textContent =
+            "Ocultar motoboys";
+
           mostrarLogins(r, detalhes);
         }
       }
     );
 
-    acoes.appendChild(botaoLogins);
-
+    // Botão de renovação.
     acoes.appendChild(
       criarBotao(
-        ativo ? "Bloquear restaurante" : "Liberar restaurante",
+        "Renovar 30 dias",
+        "",
+        () => renovarLicenca(r.codigo)
+      )
+    );
+
+    acoes.appendChild(botaoLogins);
+
+    // Bloquear ou liberar restaurante.
+    acoes.appendChild(
+      criarBotao(
+        ativo
+          ? "Bloquear restaurante"
+          : "Liberar restaurante",
         ativo ? "btn-vermelho" : "",
         () => alternarStatus(r.codigo)
       )
     );
 
+    // Excluir restaurante.
     acoes.appendChild(
       criarBotao(
         "Excluir",
@@ -963,8 +1209,13 @@ function renderizar() {
     conteudo.appendChild(acoes);
     conteudo.appendChild(detalhes);
 
-    if (aberto && loginsAbertos.has(r.codigo)) {
-      botaoLogins.textContent = "Ocultar motoboys";
+    if (
+      aberto &&
+      loginsAbertos.has(r.codigo)
+    ) {
+      botaoLogins.textContent =
+        "Ocultar motoboys";
+
       mostrarLogins(r, detalhes);
     }
 
@@ -974,7 +1225,10 @@ function renderizar() {
   });
 }
 
-$("pesquisa").addEventListener("input", renderizar);
+$("pesquisa").addEventListener(
+  "input",
+  renderizar
+);
 </script>
 
 </body>
