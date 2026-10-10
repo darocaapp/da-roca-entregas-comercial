@@ -68,13 +68,42 @@ button:disabled { opacity:.5; cursor:default; }
   gap:8px;
   margin-top:14px;
 }
+
+/* Restaurante recolhível */
 .restaurante {
   border:1px solid #e4dacf;
-  padding:17px;
   border-radius:10px;
   margin:14px 0;
+  overflow:hidden;
 }
-.restaurante h3 { margin:0 0 8px; }
+.restaurante-topo {
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:17px;
+  background:white;
+  color:var(--marrom);
+  text-align:left;
+}
+.restaurante-topo:hover {
+  background:#faf6ef;
+}
+.restaurante-topo h3 {
+  margin:0 0 8px;
+}
+.restaurante-topo .info {
+  margin:0 0 9px;
+}
+.restaurante-conteudo {
+  padding:0 17px 17px;
+  border-top:1px solid #eee5db;
+}
+.seta {
+  font-size:25px;
+  flex-shrink:0;
+}
 .status {
   display:inline-block;
   border-radius:20px;
@@ -153,7 +182,6 @@ footer {
 </head>
 
 <body>
-
 <header>
   <h1>DAROÇA APP</h1>
   <p>Painel de Administração</p>
@@ -180,24 +208,16 @@ footer {
       Entrar no painel
     </button>
   </form>
-
   <div id="mensagemLogin"></div>
 </section>
 
 <div id="painel" class="oculto">
 
   <div class="topo-acoes">
-    <button
-      type="button"
-      class="btn-marrom"
-      id="btnAtualizar">
+    <button type="button" class="btn-marrom" id="btnAtualizar">
       Atualizar dados
     </button>
-
-    <button
-      type="button"
-      class="btn-cinza"
-      id="btnSair">
+    <button type="button" class="btn-cinza" id="btnSair">
       Sair
     </button>
   </div>
@@ -206,7 +226,6 @@ footer {
     <h2>Adicionar restaurante</h2>
 
     <form id="formRestaurante">
-
       <label for="nome">Nome do restaurante</label>
       <input
         id="nome"
@@ -228,7 +247,6 @@ footer {
       <button type="submit" id="btnCadastrar">
         + Adicionar restaurante
       </button>
-
     </form>
 
     <p class="info">
@@ -239,16 +257,13 @@ footer {
     <div id="mensagemCadastro"></div>
   </section>
 
-  <section
-    class="card credenciais oculto"
-    id="cardCredenciais">
-
+  <section class="card credenciais oculto" id="cardCredenciais">
     <h2>Credenciais do novo restaurante</h2>
 
     <p class="aviso">
       Atenção: copie e guarde estas senhas agora.
-      Por segurança, elas não poderão ser consultadas
-      novamente no banco de dados.
+      As senhas atuais são armazenadas como hashes
+      e não poderão ser recuperadas posteriormente.
     </p>
 
     <div id="dadosCredenciais"></div>
@@ -280,7 +295,6 @@ footer {
   </section>
 
 </div>
-
 </main>
 
 <footer>
@@ -296,6 +310,9 @@ const API =
 let chaveAdmin = "";
 let restaurantes = [];
 let credenciaisTexto = "";
+
+// Guarda quais restaurantes estão expandidos.
+const restaurantesAbertos = new Set();
 
 const $ = id => document.getElementById(id);
 
@@ -319,7 +336,6 @@ function criarElemento(tag, texto, classe) {
   }
 
   if (classe) el.className = classe;
-
   return el;
 }
 
@@ -386,14 +402,11 @@ async function carregarRestaurantes() {
   mensagem("mensagemLista", "Carregando restaurantes...");
 
   try {
-    const resultado = await requisicao(
-      "/admin/restaurantes"
-    );
-
+    const resultado = await requisicao("/admin/restaurantes");
     restaurantes = resultado.restaurantes || [];
+
     mensagem("mensagemLista", "");
     renderizar();
-
   } catch (erro) {
     mensagem("mensagemLista", erro.message, "erro");
   }
@@ -418,7 +431,6 @@ $("formLogin").addEventListener("submit", async evento => {
   } catch (erro) {
     chaveAdmin = "";
     mensagem("mensagemLogin", erro.message, "erro");
-
   } finally {
     $("btnEntrar").disabled = false;
   }
@@ -428,6 +440,7 @@ $("btnSair").addEventListener("click", () => {
   chaveAdmin = "";
   restaurantes = [];
   credenciaisTexto = "";
+  restaurantesAbertos.clear();
 
   $("dadosCredenciais").replaceChildren();
   $("cardCredenciais").classList.add("oculto");
@@ -479,7 +492,6 @@ $("formRestaurante").addEventListener(
       );
 
       mostrarCredenciais(resultado);
-
       $("formRestaurante").reset();
 
       mensagem(
@@ -492,7 +504,6 @@ $("formRestaurante").addEventListener(
 
     } catch (erro) {
       mensagem("mensagemCadastro", erro.message, "erro");
-
     } finally {
       $("btnCadastrar").disabled = false;
     }
@@ -520,12 +531,9 @@ function mostrarCredenciais(resultado) {
     "DAROÇA APP - " + restaurante.nome + "\n\n";
 
   informacoes.forEach(([titulo, valor]) => {
-    const p = criarElemento(
-      "p",
-      titulo + ": " + valor
+    dados.appendChild(
+      criarElemento("p", titulo + ": " + valor)
     );
-
-    dados.appendChild(p);
     credenciaisTexto += titulo + ": " + valor + "\n";
   });
 
@@ -537,15 +545,12 @@ function mostrarCredenciais(resultado) {
   });
 
   tabela.appendChild(cabecalho);
-
   credenciaisTexto += "\nMOTOBOYS\n";
 
   motoboys.forEach(m => {
     const linha = criarElemento("tr");
-
     linha.appendChild(criarElemento("td", m.login));
     linha.appendChild(criarElemento("td", m.senha));
-
     tabela.appendChild(linha);
 
     credenciaisTexto += m.login + " - " + m.senha + "\n";
@@ -556,7 +561,6 @@ function mostrarCredenciais(resultado) {
   dados.appendChild(rolagem);
 
   $("cardCredenciais").classList.remove("oculto");
-
   $("cardCredenciais").scrollIntoView({
     behavior: "smooth",
     block: "start"
@@ -587,7 +591,6 @@ async function alternarStatus(codigo) {
   const restaurante = restaurantes.find(
     r => r.codigo === codigo
   );
-
   if (!restaurante) return;
 
   const ativo = !Boolean(restaurante.ativo);
@@ -604,7 +607,6 @@ async function alternarStatus(codigo) {
     });
 
     await carregarRestaurantes();
-
   } catch (erro) {
     alert(erro.message);
   }
@@ -614,7 +616,6 @@ async function excluirRestaurante(codigo) {
   const restaurante = restaurantes.find(
     r => r.codigo === codigo
   );
-
   if (!restaurante) return;
 
   if (!confirm(
@@ -635,6 +636,7 @@ async function excluirRestaurante(codigo) {
       codigo
     });
 
+    restaurantesAbertos.delete(codigo);
     await carregarRestaurantes();
 
   } catch (erro) {
@@ -659,25 +661,16 @@ function mostrarLogins(restaurante, container) {
       restaurante.codigo + String(i).padStart(2, "0");
 
     const linha = criarElemento("tr");
-
     linha.appendChild(criarElemento("td", login));
-
+    linha.appendChild(criarElemento("td", "Protegida"));
     linha.appendChild(criarElemento(
-      "td",
-      "Protegida"
+      "td", "Ainda não consultado"
     ));
-
-    linha.appendChild(criarElemento(
-      "td",
-      "Ainda não consultado"
-    ));
-
     tabela.appendChild(linha);
   }
 
   const rolagem = criarElemento("div", undefined, "tabela");
   rolagem.appendChild(tabela);
-
   container.appendChild(rolagem);
 
   container.appendChild(criarElemento(
@@ -710,41 +703,69 @@ function renderizar() {
 
   encontrados.forEach(r => {
     const card = criarElemento(
-      "div",
-      undefined,
-      "restaurante"
+      "div", undefined, "restaurante"
     );
 
-    card.appendChild(criarElemento("h3", r.nome));
+    const topo = criarElemento(
+      "button", undefined, "restaurante-topo"
+    );
+    topo.type = "button";
 
-    card.appendChild(criarElemento(
-      "p",
-      "Código: " + r.codigo,
-      "info"
+    const informacoes = criarElemento("div");
+    informacoes.appendChild(criarElemento("h3", r.nome));
+    informacoes.appendChild(criarElemento(
+      "p", "Código: " + r.codigo, "info"
     ));
 
     const ativo = Boolean(r.ativo);
-
-    card.appendChild(criarElemento(
+    informacoes.appendChild(criarElemento(
       "span",
       ativo ? "ATIVO" : "BLOQUEADO",
       "status " + (ativo ? "ativo" : "bloqueado")
     ));
 
-    const acoes = criarElemento("div", undefined, "acoes");
-    const detalhes = criarElemento("div");
+    const aberto = restaurantesAbertos.has(r.codigo);
 
-    acoes.appendChild(criarBotao(
-      "Ver 10 logins",
-      "btn-marrom",
-      () => {
-        if (detalhes.childElementCount) {
-          detalhes.replaceChildren();
-        } else {
-          mostrarLogins(r, detalhes);
-        }
+    const seta = criarElemento(
+      "span",
+      aberto ? "⌃" : "⌄",
+      "seta"
+    );
+
+    topo.appendChild(informacoes);
+    topo.appendChild(seta);
+
+    const conteudo = criarElemento(
+      "div", undefined, "restaurante-conteudo"
+    );
+    conteudo.id = "conteudo-" + r.codigo;
+
+    if (!aberto) {
+      conteudo.classList.add("oculto");
+    }
+
+    topo.setAttribute("aria-expanded", String(aberto));
+    topo.setAttribute("aria-controls", conteudo.id);
+
+    topo.addEventListener("click", () => {
+      const vaiAbrir = !restaurantesAbertos.has(r.codigo);
+
+      if (vaiAbrir) {
+        restaurantesAbertos.add(r.codigo);
+      } else {
+        restaurantesAbertos.delete(r.codigo);
       }
-    ));
+
+      conteudo.classList.toggle("oculto", !vaiAbrir);
+      seta.textContent = vaiAbrir ? "⌃" : "⌄";
+      topo.setAttribute("aria-expanded", String(vaiAbrir));
+    });
+
+    const detalhes = criarElemento("div");
+    mostrarLogins(r, detalhes);
+    conteudo.appendChild(detalhes);
+
+    const acoes = criarElemento("div", undefined, "acoes");
 
     acoes.appendChild(criarBotao(
       ativo ? "Bloquear restaurante" : "Liberar restaurante",
@@ -758,14 +779,15 @@ function renderizar() {
       () => excluirRestaurante(r.codigo)
     ));
 
-    card.appendChild(acoes);
-    card.appendChild(detalhes);
+    conteudo.appendChild(acoes);
+
+    card.appendChild(topo);
+    card.appendChild(conteudo);
     lista.appendChild(card);
   });
 }
 
 $("pesquisa").addEventListener("input", renderizar);
 </script>
-
 </body>
 </html>
