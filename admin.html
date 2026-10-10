@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAROÇA APP | Administração</title>
+<style>
+:root {
+  --marrom:#513829;
+  --bege:#f5eee3;
+  --verde:#28764b;
+  --vermelho:#b83e3e;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bege);
+  color:var(--marrom);
+}
+header {
+  background:var(--marrom);
+  color:white;
+  padding:24px 16px;
+  text-align:center;
+}
+header h1 { margin:0 0 8px; }
+header p { margin:0; opacity:.85; }
+main {
+  max-width:1050px;
+  margin:25px auto;
+  padding:0 15px;
+}
+.card {
+  background:white;
+  padding:22px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 3px 12px #00000012;
+}
+h2 { margin-top:0; }
+input {
+  width:100%;
+  padding:13px;
+  border:1px solid #d5c9b9;
+  border-radius:8px;
+  margin:7px 0 13px;
+  font-size:16px;
+}
+button {
+  border:0;
+  border-radius:8px;
+  padding:11px 15px;
+  font-weight:bold;
+  cursor:pointer;
+  color:white;
+  background:var(--verde);
+}
+button:hover { opacity:.88; }
+button:disabled { opacity:.5; cursor:default; }
+.btn-vermelho { background:var(--vermelho); }
+.btn-marrom { background:var(--marrom); }
+.btn-cinza { background:#777; }
+.acoes {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+.restaurante {
+  border:1px solid #e4dacf;
+  padding:17px;
+  border-radius:10px;
+  margin:14px 0;
+}
+.restaurante h3 { margin:0 0 8px; }
+.status {
+  display:inline-block;
+  border-radius:20px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:bold;
+}
+.ativo { background:#d9f2e2; color:#17633a; }
+.bloqueado { background:#fbe0e0; color:#9e2929; }
+.info { color:#766858; font-size:13px; }
+table {
+  border-collapse:collapse;
+  width:100%;
+  margin-top:14px;
+}
+th,td {
+  border-bottom:1px solid #eee;
+  padding:11px;
+  text-align:left;
+  font-size:14px;
+}
+th { background:#f5eee3; }
+.tabela { overflow-x:auto; }
+.vazio { color:#888; text-align:center; padding:20px; }
+footer {
+  text-align:center;
+  padding:25px;
+  color:#887768;
+  font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DAROÇA APP</h1>
+  <p>Painel de Administração</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Adicionar restaurante</h2>
+    <form id="formRestaurante">
+      <label for="nome">Nome do restaurante</label>
+      <input id="nome" required maxlength="100"
+        placeholder="Ex.: Restaurante Sabor Caseiro">
+
+      <label for="codigo">Código do restaurante</label>
+      <input id="codigo" required maxlength="20"
+        pattern="[A-Za-z0-9]+"
+        placeholder="Ex.: SABOR001">
+
+      <button type="submit">+ Adicionar restaurante</button>
+    </form>
+    <p class="info">
+      Cada restaurante recebe automaticamente 10 logins.
+      Exemplo: SABOR001-M1 até SABOR001-M10.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Restaurantes cadastrados</h2>
+    <input id="pesquisa" placeholder="Pesquisar restaurante..."
+      oninput="renderizar()">
+    <div id="lista"></div>
+  </section>
+</main>
+
+<footer>
+  DAROÇA APP &copy; 2026
+</footer>
+
+<script>
+"use strict";
+
+const CHAVE = "daroca_admin_restaurantes_v1";
+
+let restaurantes = carregar();
+
+function carregar() {
+  try {
+    const dados = JSON.parse(localStorage.getItem(CHAVE));
+    return Array.isArray(dados) ? dados : [];
+  } catch {
+    return [];
+  }
+}
+
+function salvar() {
+  localStorage.setItem(CHAVE, JSON.stringify(restaurantes));
+}
+
+function normalizarCodigo(valor) {
+  return valor.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function criarElemento(tag, texto, classe) {
+  const el = document.createElement(tag);
+  if (texto !== undefined) el.textContent = texto;
+  if (classe) el.className = classe;
+  return el;
+}
+
+function criarBotao(texto, classe, acao) {
+  const botao = criarElemento("button", texto, classe);
+  botao.type = "button";
+  botao.addEventListener("click", acao);
+  return botao;
+}
+
+document.getElementById("formRestaurante")
+.addEventListener("submit", function(evento) {
+  evento.preventDefault();
+
+  const nome = document.getElementById("nome").value.trim();
+  const codigo = normalizarCodigo(
+    document.getElementById("codigo").value
+  );
+
+  if (!nome || !codigo) {
+    alert("Preencha o nome e o código.");
+    return;
+  }
+
+  if (restaurantes.some(r => r.codigo === codigo)) {
+    alert("Esse código já está cadastrado.");
+    return;
+  }
+
+  const restaurante = {
+    id: crypto.randomUUID(),
+    nome,
+    codigo,
+    ativo:true,
+    criadoEm:new Date().toISOString(),
+    motoboys:Array.from({length:10}, (_,i) => ({
+      login:codigo + "-M" + (i+1),
+      senha:"123456",
+      dispositivo:null
+    }))
+  };
+
+  restaurantes.push(restaurante);
+  salvar();
+  renderizar();
+  evento.target.reset();
+  alert("Restaurante cadastrado com 10 acessos!");
+});
+
+function alternarStatus(id) {
+  const restaurante = restaurantes.find(r => r.id === id);
+  if (!restaurante) return;
+
+  const acao = restaurante.ativo ? "bloquear" : "liberar";
+
+  if (!confirm("Deseja " + acao + " " +
+      restaurante.nome + "?")) return;
+
+  restaurante.ativo = !restaurante.ativo;
+  salvar();
+  renderizar();
+}
+
+function excluirRestaurante(id) {
+  const restaurante = restaurantes.find(r => r.id === id);
+  if (!restaurante) return;
+
+  if (!confirm(
+    "Excluir definitivamente " + restaurante.nome + "?"
+  )) return;
+
+  restaurantes = restaurantes.filter(r => r.id !== id);
+  salvar();
+  renderizar();
+}
+
+function mostrarLogins(id, container) {
+  const restaurante = restaurantes.find(r => r.id === id);
+  if (!restaurante) return;
+
+  container.replaceChildren();
+
+  const tabela = criarElemento("table");
+  const cabecalho = criarElemento("tr");
+
+  ["Login", "Senha inicial", "Celular"].forEach(titulo => {
+    cabecalho.appendChild(criarElemento("th", titulo));
+  });
+  tabela.appendChild(cabecalho);
+
+  restaurante.motoboys.forEach(m => {
+    const linha = criarElemento("tr");
+    linha.appendChild(criarElemento("td", m.login));
+    linha.appendChild(criarElemento("td", m.senha));
+    linha.appendChild(criarElemento(
+      "td", m.dispositivo ? "Vinculado" : "Livre"
+    ));
+    tabela.appendChild(linha);
+  });
+
+  const rolagem = criarElemento("div", undefined, "tabela");
+  rolagem.appendChild(tabela);
+  container.appendChild(rolagem);
+}
+
+function renderizar() {
+  const lista = document.getElementById("lista");
+  const pesquisa = document.getElementById("pesquisa")
+    .value.toLowerCase().trim();
+
+  lista.replaceChildren();
+
+  const encontrados = restaurantes.filter(r =>
+    r.nome.toLowerCase().includes(pesquisa) ||
+    r.codigo.toLowerCase().includes(pesquisa)
+  );
+
+  if (!encontrados.length) {
+    lista.appendChild(criarElemento(
+      "p", "Nenhum restaurante encontrado.", "vazio"
+    ));
+    return;
+  }
+
+  encontrados.forEach(r => {
+    const card = criarElemento("div", undefined, "restaurante");
+
+    card.appendChild(criarElemento("h3", r.nome));
+    card.appendChild(criarElemento(
+      "p", "Código: " + r.codigo, "info"
+    ));
+
+    card.appendChild(criarElemento(
+      "span",
+      r.ativo ? "ATIVO" : "BLOQUEADO",
+      "status " + (r.ativo ? "ativo" : "bloqueado")
+    ));
+
+    const acoes = criarElemento("div", undefined, "acoes");
+
+    acoes.appendChild(criarBotao(
+      "Ver 10 logins", "btn-marrom", () => {
+        if (detalhes.childElementCount) {
+          detalhes.replaceChildren();
+        } else {
+          mostrarLogins(r.id, detalhes);
+        }
+      }
+    ));
+
+    acoes.appendChild(criarBotao(
+      r.ativo ? "Bloquear restaurante" : "Liberar restaurante",
+      r.ativo ? "btn-vermelho" : "",
+      () => alternarStatus(r.id)
+    ));
+
+    acoes.appendChild(criarBotao(
+      "Excluir", "btn-cinza",
+      () => excluirRestaurante(r.id)
+    ));
+
+    const detalhes = criarElemento("div");
+
+    card.appendChild(acoes);
+    card.appendChild(detalhes);
+    lista.appendChild(card);
+  });
+}
+
+renderizar();
+</script>
+</body>
+</html>
