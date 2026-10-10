@@ -1,7 +1,18 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Internet para iFood, 99Food e licenças -->
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <!-- Permissão para leitura das comandas -->
+    <uses-permission
+        android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:theme="@style/Theme.DaRoca"
@@ -12,13 +23,13 @@
             android:name=".MainActivity"
             android:exported="true">
 
-            <!-- Ícone normal do aplicativo -->
+            <!-- Abertura pelo ícone do aplicativo -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Link interno daroca:// -->
+            <!-- Compatibilidade com links daroca:// -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -27,7 +38,7 @@
                 <data android:scheme="daroca" />
             </intent-filter>
 
-            <!-- Links HTTPS enviados pelo WhatsApp -->
+            <!-- Compatibilidade com links HTTPS antigos -->
             <intent-filter android:autoVerify="false">
                 <action android:name="android.intent.action.VIEW" />
 
