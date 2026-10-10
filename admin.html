@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -68,8 +69,6 @@ button:disabled { opacity:.5; cursor:default; }
   gap:8px;
   margin-top:14px;
 }
-
-/* Restaurante recolhível */
 .restaurante {
   border:1px solid #e4dacf;
   border-radius:10px;
@@ -87,23 +86,14 @@ button:disabled { opacity:.5; cursor:default; }
   color:var(--marrom);
   text-align:left;
 }
-.restaurante-topo:hover {
-  background:#faf6ef;
-}
-.restaurante-topo h3 {
-  margin:0 0 8px;
-}
-.restaurante-topo .info {
-  margin:0 0 9px;
-}
+.restaurante-topo:hover { background:#faf6ef; }
+.restaurante-topo h3 { margin:0 0 8px; }
+.restaurante-topo .info { margin:0 0 8px; }
 .restaurante-conteudo {
   padding:0 17px 17px;
   border-top:1px solid #eee5db;
 }
-.seta {
-  font-size:25px;
-  flex-shrink:0;
-}
+.seta { font-size:25px; flex-shrink:0; }
 .status {
   display:inline-block;
   border-radius:20px;
@@ -111,18 +101,9 @@ button:disabled { opacity:.5; cursor:default; }
   font-size:12px;
   font-weight:bold;
 }
-.ativo {
-  background:#d9f2e2;
-  color:#17633a;
-}
-.bloqueado {
-  background:#fbe0e0;
-  color:#9e2929;
-}
-.info {
-  color:#766858;
-  font-size:13px;
-}
+.ativo { background:#d9f2e2; color:#17633a; }
+.bloqueado { background:#fbe0e0; color:#9e2929; }
+.info { color:#766858; font-size:13px; }
 table {
   border-collapse:collapse;
   width:100%;
@@ -148,14 +129,8 @@ th { background:#f5eee3; }
   margin:12px 0;
   background:#f5eee3;
 }
-.erro {
-  background:#fbe0e0;
-  color:#9e2929;
-}
-.sucesso {
-  background:#d9f2e2;
-  color:#17633a;
-}
+.erro { background:#fbe0e0; color:#9e2929; }
+.sucesso { background:#d9f2e2; color:#17633a; }
 .credenciais {
   border:2px solid var(--verde);
   background:#f7fcf8;
@@ -172,6 +147,30 @@ th { background:#f5eee3; }
   gap:8px;
   margin-bottom:15px;
 }
+.motoboy-acoes {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.motoboy-acoes button {
+  padding:8px 10px;
+  font-size:12px;
+}
+.estado {
+  font-weight:bold;
+  font-size:12px;
+}
+.estado.sim { color:var(--verde); }
+.estado.nao { color:var(--vermelho); }
+.senha-resultado {
+  background:#f7fcf8;
+  border:1px solid var(--verde);
+  padding:12px;
+  border-radius:8px;
+  margin-top:10px;
+  overflow-wrap:anywhere;
+}
+.senha-resultado strong { font-size:18px; }
 footer {
   text-align:center;
   padding:25px;
@@ -182,6 +181,7 @@ footer {
 </head>
 
 <body>
+
 <header>
   <h1>DAROÇA APP</h1>
   <p>Painel de Administração</p>
@@ -194,16 +194,11 @@ footer {
   <p class="info">
     Digite sua chave administrativa da Cloudflare.
   </p>
-
   <form id="formLogin">
     <label for="senhaAdmin">Senha administrativa</label>
-    <input
-      id="senhaAdmin"
-      type="password"
-      required
-      autocomplete="off"
-      placeholder="Digite sua senha"
-    >
+    <input id="senhaAdmin" type="password"
+      required autocomplete="off"
+      placeholder="Digite sua senha">
     <button type="submit" id="btnEntrar">
       Entrar no painel
     </button>
@@ -224,58 +219,39 @@ footer {
 
   <section class="card">
     <h2>Adicionar restaurante</h2>
-
     <form id="formRestaurante">
       <label for="nome">Nome do restaurante</label>
-      <input
-        id="nome"
-        required
-        maxlength="100"
-        placeholder="Ex.: Restaurante Estilo"
-      >
+      <input id="nome" required maxlength="100"
+        placeholder="Ex.: Restaurante Estilo">
 
       <label for="codigo">Código do restaurante</label>
-      <input
-        id="codigo"
-        required
-        minlength="3"
-        maxlength="20"
-        pattern="[A-Za-z0-9]+"
-        placeholder="Ex.: estilo"
-      >
+      <input id="codigo" required minlength="3"
+        maxlength="20" pattern="[A-Za-z0-9]+"
+        placeholder="Ex.: estilo">
 
       <button type="submit" id="btnCadastrar">
         + Adicionar restaurante
       </button>
     </form>
-
     <p class="info">
       Cada restaurante recebe automaticamente 10 logins.
       Exemplo: estilo01 até estilo10.
     </p>
-
     <div id="mensagemCadastro"></div>
   </section>
 
   <section class="card credenciais oculto" id="cardCredenciais">
     <h2>Credenciais do novo restaurante</h2>
-
     <p class="aviso">
       Atenção: copie e guarde estas senhas agora.
-      As senhas atuais são armazenadas como hashes
-      e não poderão ser recuperadas posteriormente.
+      As senhas antigas não poderão ser recuperadas.
     </p>
-
     <div id="dadosCredenciais"></div>
-
     <div class="acoes">
       <button type="button" id="btnCopiar">
         Copiar todas as credenciais
       </button>
-
-      <button
-        type="button"
-        class="btn-marrom"
+      <button type="button" class="btn-marrom"
         id="btnFecharCredenciais">
         Já guardei as senhas
       </button>
@@ -284,12 +260,8 @@ footer {
 
   <section class="card">
     <h2>Restaurantes cadastrados</h2>
-
-    <input
-      id="pesquisa"
-      placeholder="Pesquisar restaurante..."
-    >
-
+    <input id="pesquisa"
+      placeholder="Pesquisar restaurante...">
     <div id="mensagemLista"></div>
     <div id="lista"></div>
   </section>
@@ -297,9 +269,7 @@ footer {
 </div>
 </main>
 
-<footer>
-  DAROÇA APP &copy; 2026
-</footer>
+<footer>DAROÇA APP &copy; 2026</footer>
 
 <script>
 "use strict";
@@ -311,8 +281,8 @@ let chaveAdmin = "";
 let restaurantes = [];
 let credenciaisTexto = "";
 
-// Guarda quais restaurantes estão expandidos.
 const restaurantesAbertos = new Set();
+const loginsAbertos = new Set();
 
 const $ = id => document.getElementById(id);
 
@@ -331,11 +301,9 @@ function mensagem(id, texto, tipo = "") {
 function criarElemento(tag, texto, classe) {
   const el = document.createElement(tag);
 
-  if (texto !== undefined) {
-    el.textContent = texto;
-  }
-
+  if (texto !== undefined) el.textContent = texto;
   if (classe) el.className = classe;
+
   return el;
 }
 
@@ -373,7 +341,7 @@ async function requisicao(caminho, metodo = "GET", dados) {
   } catch {
     throw new Error(
       "Não foi possível conectar ao servidor. " +
-      "Verifique sua internet e a configuração da Cloudflare."
+      "Verifique sua internet e a Cloudflare."
     );
   }
 
@@ -404,7 +372,6 @@ async function carregarRestaurantes() {
   try {
     const resultado = await requisicao("/admin/restaurantes");
     restaurantes = resultado.restaurantes || [];
-
     mensagem("mensagemLista", "");
     renderizar();
   } catch (erro) {
@@ -440,7 +407,9 @@ $("btnSair").addEventListener("click", () => {
   chaveAdmin = "";
   restaurantes = [];
   credenciaisTexto = "";
+
   restaurantesAbertos.clear();
+  loginsAbertos.clear();
 
   $("dadosCredenciais").replaceChildren();
   $("cardCredenciais").classList.add("oculto");
@@ -451,13 +420,11 @@ $("btnSair").addEventListener("click", () => {
 });
 
 $("btnAtualizar").addEventListener(
-  "click",
-  carregarRestaurantes
+  "click", carregarRestaurantes
 );
 
 $("formRestaurante").addEventListener(
-  "submit",
-  async evento => {
+  "submit", async evento => {
     evento.preventDefault();
 
     const nome = $("nome").value.trim();
@@ -486,9 +453,7 @@ $("formRestaurante").addEventListener(
 
     try {
       const resultado = await requisicao(
-        "/admin/cadastrar",
-        "POST",
-        { nome, codigo }
+        "/admin/cadastrar", "POST", { nome, codigo }
       );
 
       mostrarCredenciais(resultado);
@@ -501,7 +466,6 @@ $("formRestaurante").addEventListener(
       );
 
       await carregarRestaurantes();
-
     } catch (erro) {
       mensagem("mensagemCadastro", erro.message, "erro");
     } finally {
@@ -517,9 +481,7 @@ function mostrarCredenciais(resultado) {
   const restaurante = resultado.restaurante;
   const motoboys = resultado.motoboys || [];
 
-  dados.appendChild(
-    criarElemento("h3", restaurante.nome)
-  );
+  dados.appendChild(criarElemento("h3", restaurante.nome));
 
   const informacoes = [
     ["Código", restaurante.codigo],
@@ -549,10 +511,11 @@ function mostrarCredenciais(resultado) {
 
   motoboys.forEach(m => {
     const linha = criarElemento("tr");
+
     linha.appendChild(criarElemento("td", m.login));
     linha.appendChild(criarElemento("td", m.senha));
-    tabela.appendChild(linha);
 
+    tabela.appendChild(linha);
     credenciaisTexto += m.login + " - " + m.senha + "\n";
   });
 
@@ -562,8 +525,8 @@ function mostrarCredenciais(resultado) {
 
   $("cardCredenciais").classList.remove("oculto");
   $("cardCredenciais").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
+    behavior:"smooth",
+    block:"start"
   });
 }
 
@@ -591,6 +554,7 @@ async function alternarStatus(codigo) {
   const restaurante = restaurantes.find(
     r => r.codigo === codigo
   );
+
   if (!restaurante) return;
 
   const ativo = !Boolean(restaurante.ativo);
@@ -602,8 +566,7 @@ async function alternarStatus(codigo) {
 
   try {
     await requisicao("/admin/status", "POST", {
-      codigo,
-      ativo
+      codigo, ativo
     });
 
     await carregarRestaurantes();
@@ -616,6 +579,7 @@ async function excluirRestaurante(codigo) {
   const restaurante = restaurantes.find(
     r => r.codigo === codigo
   );
+
   if (!restaurante) return;
 
   if (!confirm(
@@ -632,54 +596,240 @@ async function excluirRestaurante(codigo) {
   }
 
   try {
-    await requisicao("/admin/excluir", "POST", {
-      codigo
-    });
+    await requisicao("/admin/excluir", "POST", { codigo });
 
     restaurantesAbertos.delete(codigo);
-    await carregarRestaurantes();
+    loginsAbertos.delete(codigo);
 
+    await carregarRestaurantes();
   } catch (erro) {
     alert(erro.message);
   }
 }
 
-function mostrarLogins(restaurante, container) {
+/* GERENCIAMENTO INDIVIDUAL DOS MOTOBOYS */
+
+async function mostrarLogins(restaurante, container) {
   container.replaceChildren();
+  container.appendChild(
+    criarElemento("p", "Consultando motoboys...", "info")
+  );
 
-  const tabela = criarElemento("table");
-  const cabecalho = criarElemento("tr");
+  try {
+    const resultado = await requisicao(
+      "/admin/motoboys",
+      "POST",
+      { codigo: restaurante.codigo }
+    );
 
-  ["Login", "Senha", "Celular"].forEach(t => {
-    cabecalho.appendChild(criarElemento("th", t));
-  });
+    container.replaceChildren();
 
-  tabela.appendChild(cabecalho);
+    const tabela = criarElemento("table");
+    const cabecalho = criarElemento("tr");
 
-  for (let i = 1; i <= 10; i++) {
-    const login =
-      restaurante.codigo + String(i).padStart(2, "0");
+    ["Login", "Situação", "Celular", "Ações"].forEach(t => {
+      cabecalho.appendChild(criarElemento("th", t));
+    });
 
-    const linha = criarElemento("tr");
-    linha.appendChild(criarElemento("td", login));
-    linha.appendChild(criarElemento("td", "Protegida"));
-    linha.appendChild(criarElemento(
-      "td", "Ainda não consultado"
-    ));
-    tabela.appendChild(linha);
+    tabela.appendChild(cabecalho);
+
+    for (const m of resultado.motoboys || []) {
+      const linha = criarElemento("tr");
+
+      linha.appendChild(criarElemento("td", m.login));
+
+      const celulaStatus = criarElemento("td");
+      celulaStatus.appendChild(
+        criarElemento(
+          "span",
+          m.ativo ? "LIBERADO" : "BLOQUEADO",
+          "estado " + (m.ativo ? "sim" : "nao")
+        )
+      );
+      linha.appendChild(celulaStatus);
+
+      // dispositivo_id é um identificador técnico,
+      // não é o número de telefone.
+      linha.appendChild(
+        criarElemento(
+          "td",
+          m.dispositivo_id ? "Vinculado" : "Sem vínculo"
+        )
+      );
+
+      const celulaAcoes = criarElemento("td");
+      const acoes = criarElemento(
+        "div", undefined, "motoboy-acoes"
+      );
+
+      // Bloquear ou liberar
+      acoes.appendChild(
+        criarBotao(
+          m.ativo ? "Bloquear" : "Liberar",
+          m.ativo ? "btn-vermelho" : "",
+          async () => {
+            const ativo = !Boolean(m.ativo);
+
+            if (!confirm(
+              (ativo ? "Liberar " : "Bloquear ") +
+              m.login + "?"
+            )) return;
+
+            try {
+              await requisicao(
+                "/admin/motoboy/status",
+                "POST",
+                { login:m.login, ativo }
+              );
+
+              await mostrarLogins(restaurante, container);
+            } catch (e) {
+              alert(e.message);
+            }
+          }
+        )
+      );
+
+      // Gerar nova senha
+      acoes.appendChild(
+        criarBotao(
+          "Nova senha",
+          "btn-marrom",
+          async () => {
+            if (!confirm(
+              "Gerar uma NOVA senha para " + m.login +
+              "? A senha antiga deixará de funcionar."
+            )) return;
+
+            try {
+              const r = await requisicao(
+                "/admin/motoboy/senha",
+                "POST",
+                { login:m.login }
+              );
+
+              const resultadoSenha = criarElemento(
+                "div", undefined, "senha-resultado"
+              );
+
+              resultadoSenha.appendChild(
+                criarElemento(
+                  "p", "Nova senha de " + m.login + ":"
+                )
+              );
+
+              resultadoSenha.appendChild(
+                criarElemento("strong", r.nova_senha)
+              );
+
+              resultadoSenha.appendChild(
+                criarElemento(
+                  "p",
+                  "Copie agora. Esta senha não poderá ser consultada depois.",
+                  "info"
+                )
+              );
+
+              resultadoSenha.appendChild(
+                criarBotao("Copiar senha", "", async () => {
+                  try {
+                    await navigator.clipboard.writeText(
+                      r.nova_senha
+                    );
+                    alert("Senha copiada!");
+                  } catch {
+                    alert("Não foi possível copiar automaticamente.");
+                  }
+                })
+              );
+
+              resultadoSenha.appendChild(
+                criarBotao(
+                  "Já guardei",
+                  "btn-cinza",
+                  () => resultadoSenha.remove()
+                )
+              );
+
+              container.querySelectorAll(
+                ".senha-resultado"
+              ).forEach(el => el.remove());
+
+              container.appendChild(resultadoSenha);
+
+            } catch (e) {
+              alert(e.message);
+            }
+          }
+        )
+      );
+
+      // Desvincular celular
+      const desvincular = criarBotao(
+        "Desvincular",
+        "btn-cinza",
+        async () => {
+          if (!confirm(
+            "Desvincular o celular de " + m.login + "?"
+          )) return;
+
+          try {
+            await requisicao(
+              "/admin/motoboy/desvincular",
+              "POST",
+              { login:m.login }
+            );
+
+            await mostrarLogins(restaurante, container);
+          } catch (e) {
+            alert(e.message);
+          }
+        }
+      );
+
+      desvincular.disabled = !m.dispositivo_id;
+      acoes.appendChild(desvincular);
+
+      celulaAcoes.appendChild(acoes);
+      linha.appendChild(celulaAcoes);
+      tabela.appendChild(linha);
+    }
+
+    const rolagem = criarElemento(
+      "div", undefined, "tabela"
+    );
+
+    rolagem.appendChild(tabela);
+    container.appendChild(rolagem);
+
+    container.appendChild(
+      criarElemento(
+        "p",
+        "As senhas antigas não podem ser recuperadas. " +
+        "O bloqueio e o vínculo de celular serão aplicados " +
+        "no aplicativo quando integrarmos a autenticação.",
+        "info"
+      )
+    );
+
+  } catch (e) {
+    container.replaceChildren();
+
+    container.appendChild(
+      criarElemento("p", e.message, "mensagem erro")
+    );
+
+    container.appendChild(
+      criarBotao(
+        "Tentar novamente",
+        "btn-marrom",
+        () => mostrarLogins(restaurante, container)
+      )
+    );
   }
-
-  const rolagem = criarElemento("div", undefined, "tabela");
-  rolagem.appendChild(tabela);
-  container.appendChild(rolagem);
-
-  container.appendChild(criarElemento(
-    "p",
-    "As senhas não ficam visíveis após o cadastro. " +
-    "O vínculo de celulares será integrado na próxima etapa.",
-    "info"
-  ));
 }
+
+/* LISTAGEM DOS RESTAURANTES */
 
 function renderizar() {
   const lista = $("lista");
@@ -693,11 +843,13 @@ function renderizar() {
   );
 
   if (!encontrados.length) {
-    lista.appendChild(criarElemento(
-      "p",
-      "Nenhum restaurante encontrado.",
-      "vazio"
-    ));
+    lista.appendChild(
+      criarElemento(
+        "p",
+        "Nenhum restaurante encontrado.",
+        "vazio"
+      )
+    );
     return;
   }
 
@@ -712,24 +864,31 @@ function renderizar() {
     topo.type = "button";
 
     const informacoes = criarElemento("div");
-    informacoes.appendChild(criarElemento("h3", r.nome));
-    informacoes.appendChild(criarElemento(
-      "p", "Código: " + r.codigo, "info"
-    ));
+
+    informacoes.appendChild(
+      criarElemento("h3", r.nome)
+    );
+
+    informacoes.appendChild(
+      criarElemento(
+        "p", "Código: " + r.codigo, "info"
+      )
+    );
 
     const ativo = Boolean(r.ativo);
-    informacoes.appendChild(criarElemento(
-      "span",
-      ativo ? "ATIVO" : "BLOQUEADO",
-      "status " + (ativo ? "ativo" : "bloqueado")
-    ));
+
+    informacoes.appendChild(
+      criarElemento(
+        "span",
+        ativo ? "ATIVO" : "BLOQUEADO",
+        "status " + (ativo ? "ativo" : "bloqueado")
+      )
+    );
 
     const aberto = restaurantesAbertos.has(r.codigo);
 
     const seta = criarElemento(
-      "span",
-      aberto ? "⌃" : "⌄",
-      "seta"
+      "span", aberto ? "⌃" : "⌄", "seta"
     );
 
     topo.appendChild(informacoes);
@@ -738,6 +897,7 @@ function renderizar() {
     const conteudo = criarElemento(
       "div", undefined, "restaurante-conteudo"
     );
+
     conteudo.id = "conteudo-" + r.codigo;
 
     if (!aberto) {
@@ -758,28 +918,56 @@ function renderizar() {
 
       conteudo.classList.toggle("oculto", !vaiAbrir);
       seta.textContent = vaiAbrir ? "⌃" : "⌄";
-      topo.setAttribute("aria-expanded", String(vaiAbrir));
+
+      topo.setAttribute(
+        "aria-expanded", String(vaiAbrir)
+      );
     });
 
     const detalhes = criarElemento("div");
-    mostrarLogins(r, detalhes);
-    conteudo.appendChild(detalhes);
-
     const acoes = criarElemento("div", undefined, "acoes");
 
-    acoes.appendChild(criarBotao(
-      ativo ? "Bloquear restaurante" : "Liberar restaurante",
-      ativo ? "btn-vermelho" : "",
-      () => alternarStatus(r.codigo)
-    ));
+    const botaoLogins = criarBotao(
+      "Gerenciar 10 motoboys",
+      "btn-marrom",
+      () => {
+        if (loginsAbertos.has(r.codigo)) {
+          loginsAbertos.delete(r.codigo);
+          detalhes.replaceChildren();
+          botaoLogins.textContent = "Gerenciar 10 motoboys";
+        } else {
+          loginsAbertos.add(r.codigo);
+          botaoLogins.textContent = "Ocultar motoboys";
+          mostrarLogins(r, detalhes);
+        }
+      }
+    );
 
-    acoes.appendChild(criarBotao(
-      "Excluir",
-      "btn-cinza",
-      () => excluirRestaurante(r.codigo)
-    ));
+    acoes.appendChild(botaoLogins);
+
+    acoes.appendChild(
+      criarBotao(
+        ativo ? "Bloquear restaurante" : "Liberar restaurante",
+        ativo ? "btn-vermelho" : "",
+        () => alternarStatus(r.codigo)
+      )
+    );
+
+    acoes.appendChild(
+      criarBotao(
+        "Excluir",
+        "btn-cinza",
+        () => excluirRestaurante(r.codigo)
+      )
+    );
 
     conteudo.appendChild(acoes);
+    conteudo.appendChild(detalhes);
+
+    if (aberto && loginsAbertos.has(r.codigo)) {
+      botaoLogins.textContent = "Ocultar motoboys";
+      mostrarLogins(r, detalhes);
+    }
 
     card.appendChild(topo);
     card.appendChild(conteudo);
@@ -789,5 +977,6 @@ function renderizar() {
 
 $("pesquisa").addEventListener("input", renderizar);
 </script>
+
 </body>
 </html>
