@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.Gravity;
@@ -74,6 +75,7 @@ public class MainActivity extends Activity {
 
     private static final String PREFS = "daroca_licenca_v1";
     private static final int CAMERA_REQUEST_CODE = 100;
+    private static final long INTERVALO_LICENCA_MS = 5L * 60L * 60L * 1000L;
 
     private static final int MARROM = Color.rgb(81, 56, 41);
     private static final int BEGE = Color.rgb(245, 238, 227);
@@ -92,6 +94,20 @@ public class MainActivity extends Activity {
 
     private final Handler handler =
         new Handler(Looper.getMainLooper());
+
+    // Handler separado: o leitor cancela suas próprias tarefas sem cancelar a licença.
+    private final Handler handlerLicenca =
+        new Handler(Looper.getMainLooper());
+
+    private long ultimaAutorizacaoMs = 0L;
+    private boolean aplicativoVisivel = false;
+
+    private final Runnable checagemLicenca = new Runnable() {
+        @Override
+        public void run() {
+            conferirPrazoLicenca();
+        }
+    };
 
     private String orderCode = "";
     private String plataforma = "";
@@ -436,6 +452,8 @@ public class MainActivity extends Activity {
     private void mostrarLogin(String mensagem) {
 
         autorizado = false;
+        ultimaAutorizacaoMs = 0L;
+        handlerLicenca.removeCallbacks(checagemLicenca);
 
         if (bridgeAtiva) {
             webView.removeJavascriptInterface(
@@ -507,6 +525,8 @@ public class MainActivity extends Activity {
 
         token = "";
         autorizado = false;
+        ultimaAutorizacaoMs = 0L;
+        handlerLicenca.removeCallbacks(checagemLicenca);
 
         getSharedPreferences(PREFS, MODE_PRIVATE)
             .edit()
@@ -752,6 +772,7 @@ public class MainActivity extends Activity {
                 campoSenha.setText("");
 
                 autorizado = true;
+                registrarAutorizacao();
 
                 continuarAposAutorizacao();
             });
@@ -760,6 +781,10 @@ public class MainActivity extends Activity {
     }
 
     private void verificarLicenca() {
+
+        if (verificando) return;
+
+        handlerLicenca.removeCallbacks(checagemLicenca);
 
         if (token.isEmpty()) {
             mostrarLogin(
@@ -775,6 +800,8 @@ public class MainActivity extends Activity {
         verificando = true;
         autorizado = false;
 
+        // Bloqueia a interface antes da consulta, inclusive durante falhas de rede.
+        webView.setVisibility(View.GONE);
         handler.removeCallbacksAndMessages(null);
 
         mostrarCarregando(
@@ -840,6 +867,7 @@ public class MainActivity extends Activity {
                 }
 
                 autorizado = true;
+                registrarAutorizacao();
 
                 continuarAposAutorizacao();
             });
@@ -1698,6 +1726,50 @@ public class MainActivity extends Activity {
         );
     }
 
+    // Cinco horas a partir do último login ou da última verificação aprovada.
+    // O relógio monotônico não é afetado por mudanças manuais de data/hora.
+    private void registrarAutorizacao() {
+        ultimaAutorizacaoMs = SystemClock.elapsedRealtime();
+        programarChecagemLicenca();
+    }
+
+    private void programarChecagemLicenca() {
+        handlerLicenca.removeCallbacks(checagemLicenca);
+        if (!aplicativoVisivel || !autorizado || verificando || ultimaAutorizacaoMs == 0L) {
+            return;
+        }
+        long tempoDecorrido = SystemClock.elapsedRealtime() - ultimaAutorizacaoMs;
+        long tempoRestante = Math.max(0L, INTERVALO_LICENCA_MS - tempoDecorrido);
+        handlerLicenca.postDelayed(checagemLicenca, tempoRestante);
+    }
+
+    private void conferirPrazoLicenca() {
+        handlerLicenca.removeCallbacks(checagemLicenca);
+        if (!aplicativoVisivel || !autorizado || verificando || ultimaAutorizacaoMs == 0L) {
+            return;
+        }
+        long tempoDecorrido = SystemClock.elapsedRealtime() - ultimaAutorizacaoMs;
+        if (tempoDecorrido >= INTERVALO_LICENCA_MS) {
+            verificarLicenca();
+        } else {
+            programarChecagemLicenca();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        aplicativoVisivel = true;
+        conferirPrazoLicenca();
+    }
+
+    @Override
+    protected void onPause() {
+        aplicativoVisivel = false;
+        handlerLicenca.removeCallbacks(checagemLicenca);
+        super.onPause();
+    }
+
     @Override
     public void onBackPressed() {
 
@@ -1712,6 +1784,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
 
+        handlerLicenca.removeCallbacksAndMessages(null);
         handler.removeCallbacksAndMessages(null);
 
         if (cameraRequest != null) {
