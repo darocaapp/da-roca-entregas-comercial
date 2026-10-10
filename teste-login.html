@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAROÇA APP - Teste de Login</title>
+<style>
+* { box-sizing:border-box; }
+body {
+  font-family:Arial,sans-serif;
+  background:#f5eee3;
+  color:#513829;
+  margin:0;
+  padding:20px;
+}
+.card {
+  max-width:440px;
+  margin:40px auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 4px 15px #00000015;
+}
+h1 { text-align:center; margin-bottom:5px; }
+.subtitulo {
+  text-align:center;
+  color:#887768;
+  margin-bottom:25px;
+}
+label {
+  display:block;
+  font-weight:bold;
+  margin-top:15px;
+}
+input {
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:1px solid #d5c9b9;
+  border-radius:8px;
+  font-size:16px;
+}
+button {
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:8px;
+  background:#28764b;
+  color:white;
+  font-weight:bold;
+  font-size:15px;
+  cursor:pointer;
+  margin-top:14px;
+}
+button:disabled { opacity:.5; }
+.secundario { background:#513829; }
+.vermelho { background:#b83e3e; }
+.resultado {
+  margin-top:20px;
+  padding:15px;
+  border-radius:10px;
+  background:#f5eee3;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-size:14px;
+}
+.sucesso {
+  background:#d9f2e2;
+  color:#17633a;
+}
+.erro {
+  background:#fbe0e0;
+  color:#9e2929;
+}
+.info {
+  font-size:12px;
+  color:#887768;
+  line-height:1.5;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>DAROÇA APP</h1>
+  <p class="subtitulo">Teste de autenticação do motoboy</p>
+
+  <label for="login">Login</label>
+  <input id="login" value="diana01"
+    autocomplete="username">
+
+  <label for="senha">Senha</label>
+  <input id="senha" type="password"
+    placeholder="Cole a senha copiada"
+    autocomplete="off">
+
+  <button id="btnLogin" onclick="fazerLogin()">
+    Entrar e vincular aparelho
+  </button>
+
+  <button class="secundario" onclick="verificarLicenca()">
+    Verificar licença
+  </button>
+
+  <button class="vermelho" onclick="limparSessao()">
+    Limpar sessão de teste
+  </button>
+
+  <div id="resultado" class="resultado">
+    Aguardando teste...
+  </div>
+
+  <p class="info">
+    Esta página é apenas para testes. O aparelho é
+    representado por um identificador aleatório
+    armazenado neste navegador.
+  </p>
+  <p class="info">
+    Não compartilhe sua senha nem o token de sessão.
+  </p>
+</div>
+
+<script>
+"use strict";
+
+const API =
+  "https://daroca-licencas.darocarestaurante1.workers.dev";
+
+const CHAVE_APARELHO = "daroca_teste_dispositivo";
+const CHAVE_TOKEN = "daroca_teste_token";
+
+let token = sessionStorage.getItem(CHAVE_TOKEN) || "";
+
+function mostrar(texto, sucesso = null) {
+  const el = document.getElementById("resultado");
+  el.textContent = texto;
+  el.className = "resultado";
+
+  if (sucesso === true) el.classList.add("sucesso");
+  if (sucesso === false) el.classList.add("erro");
+}
+
+function obterDispositivo() {
+  let dispositivo = localStorage.getItem(CHAVE_APARELHO);
+
+  if (!dispositivo) {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+
+    dispositivo = Array.from(
+      bytes,
+      b => b.toString(16).padStart(2, "0")
+    ).join("");
+
+    localStorage.setItem(CHAVE_APARELHO, dispositivo);
+  }
+
+  return dispositivo;
+}
+
+async function fazerLogin() {
+  const login = document.getElementById("login")
+    .value.trim().toLowerCase();
+
+  const senha = document.getElementById("senha").value;
+
+  if (!login || !senha) {
+    mostrar("Digite o login e a senha.", false);
+    return;
+  }
+
+  const botao = document.getElementById("btnLogin");
+  botao.disabled = true;
+  mostrar("Consultando Cloudflare...");
+
+  try {
+    const resposta = await fetch(API + "/motoboy/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        login,
+        senha,
+        dispositivo_id:obterDispositivo()
+      })
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.sucesso) {
+      mostrar(
+        "ACESSO NEGADO\n\n" +
+        (dados.erro || "Erro desconhecido."),
+        false
+      );
+      return;
+    }
+
+    token = dados.token;
+    sessionStorage.setItem(CHAVE_TOKEN, token);
+
+    document.getElementById("senha").value = "";
+
+    mostrar(
+      "LOGIN AUTORIZADO!\n\n" +
+      "Motoboy: " + dados.motoboy.login + "\n" +
+      "Restaurante: " + dados.motoboy.restaurante + "\n\n" +
+      "Aparelho vinculado com sucesso.",
+      true
+    );
+
+  } catch (e) {
+    mostrar("Erro de conexão: " + e.message, false);
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+async function verificarLicenca() {
+  if (!token) {
+    mostrar(
+      "Faça o login antes de verificar a licença.",
+      false
+    );
+    return;
+  }
+
+  mostrar("Verificando licença...");
+
+  try {
+    const resposta = await fetch(
+      API + "/motoboy/verificar",
+      {
+        method:"GET",
+        headers:{
+          "Authorization":"Bearer " + token
+        }
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.autorizado) {
+      mostrar(
+        "LICENÇA NÃO AUTORIZADA\n\n" +
+        (dados.erro || "Acesso negado."),
+        false
+      );
+      return;
+    }
+
+    mostrar(
+      "LICENÇA VÁLIDA!\n\n" +
+      "Motoboy: " + dados.motoboy.login + "\n" +
+      "Restaurante: " + dados.motoboy.restaurante,
+      true
+    );
+
+  } catch (e) {
+    mostrar("Erro de conexão: " + e.message, false);
+  }
+}
+
+function limparSessao() {
+  token = "";
+  sessionStorage.removeItem(CHAVE_TOKEN);
+
+  // Mantém o identificador do aparelho.
+  // Apagar a sessão não desvincula o celular.
+  document.getElementById("senha").value = "";
+
+  mostrar("Sessão de teste apagada.");
+}
+</script>
+</body>
+</html>
