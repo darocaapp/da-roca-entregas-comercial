@@ -1,0 +1,68 @@
+
+name: Criar chave DAROCA APP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  gerar-chave:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gerar chave e backup protegido
+        shell: bash
+        env:
+          STORE_PASSWORD: ${{ secrets.DAROCA_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.DAROCA_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DAROCA_KEY_ALIAS }}
+          BACKUP_PASSWORD: ${{ secrets.DAROCA_BACKUP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+
+          if [[ -z "$STORE_PASSWORD" || -z "$KEY_PASSWORD" || -z "$KEY_ALIAS" || -z "$BACKUP_PASSWORD" ]]; then
+            echo "Faltam GitHub Secrets."
+            exit 1
+          fi
+
+          if [[ "$STORE_PASSWORD" != "$KEY_PASSWORD" ]]; then
+            echo "Nesta configuracao, as senhas da chave e do arquivo devem ser iguais."
+            exit 1
+          fi
+
+          keytool -genkeypair \
+            -alias "$KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 4096 \
+            -validity 10000 \
+            -keystore "$RUNNER_TEMP/daroca-release.jks" \
+            -storetype PKCS12 \
+            -storepass "$STORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            -dname "CN=DAROCA APP, OU=Aplicativos, O=DAROCA, C=BR" \
+            -noprompt
+
+          printf '%s' "$BACKUP_PASSWORD" > "$RUNNER_TEMP/backup-password.txt"
+
+          openssl enc -aes-256-cbc \
+            -pbkdf2 \
+            -iter 200000 \
+            -salt \
+            -in "$RUNNER_TEMP/daroca-release.jks" \
+            -out "$RUNNER_TEMP/DAROCA-CHAVE-PROTEGIDA.enc" \
+            -pass file:"$RUNNER_TEMP/backup-password.txt"
+
+          echo "Chave gerada e backup criptografado."
+
+      - name: Disponibilizar backup criptografado
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAROCA-CHAVE-PROTEGIDA
+          path: ${{ runner.temp }}/DAROCA-CHAVE-PROTEGIDA.enc
+          retention-days: 1
