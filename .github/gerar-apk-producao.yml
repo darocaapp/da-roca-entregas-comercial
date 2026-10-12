@@ -1,0 +1,81 @@
+
+name: Gerar APK DAROCA Producao
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Verificar segredos de assinatura
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DAROCA_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.DAROCA_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DAROCA_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.DAROCA_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] ||
+             [ -z "$STORE_PASSWORD" ] ||
+             [ -z "$KEY_ALIAS" ] ||
+             [ -z "$KEY_PASSWORD" ]; then
+            echo "Configure os quatro GitHub Secrets antes de executar."
+            exit 1
+          fi
+
+      - name: Gerar APK release
+        run: gradle assembleRelease
+
+      - name: Preparar ferramentas de assinatura
+        run: |
+          echo "$ANDROID_HOME/build-tools/35.0.0" >> "$GITHUB_PATH"
+
+      - name: Assinar APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DAROCA_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.DAROCA_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DAROCA_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.DAROCA_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/daroca-release.jks"
+
+          zipalign -f -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            "$RUNNER_TEMP/daroca-aligned.apk"
+
+          apksigner sign \
+            --ks "$RUNNER_TEMP/daroca-release.jks" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:STORE_PASSWORD \
+            --key-pass env:KEY_PASSWORD \
+            --out "$RUNNER_TEMP/DAROCA-APP-Producao.apk" \
+            "$RUNNER_TEMP/daroca-aligned.apk"
+
+          apksigner verify \
+            --verbose \
+            "$RUNNER_TEMP/DAROCA-APP-Producao.apk"
+
+          cp "$RUNNER_TEMP/DAROCA-APP-Producao.apk" \
+            DAROCA-APP-Producao.apk
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAROCA-APP-Producao
+          path: DAROCA-APP-Producao.apk
+          retention-days: 30
