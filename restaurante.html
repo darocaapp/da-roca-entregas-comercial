@@ -2,334 +2,127 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#543a29">
-<title>DAROÇA APP | Painel do Restaurante</title>
-
+<title>DAROÇA APP - Restaurante</title>
 <style>
 :root {
-  --marrom: #543a29;
-  --marrom-escuro: #382519;
-  --bege: #f5eee4;
-  --creme: #fffaf3;
-  --verde: #28764b;
-  --vermelho: #b83b35;
-  --texto: #34291f;
-  --borda: #e3d7c8;
+  --marrom:#543a29;
+  --bege:#f5eee4;
+  --creme:#fffaf3;
+  --verde:#28764b;
+  --vermelho:#b83b35;
+  --texto:#34291f;
+  --borda:#e3d7c8;
 }
-
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing:border-box; }
 body {
-  margin: 0;
-  background: var(--bege);
-  color: var(--texto);
-  font-family: Arial, Helvetica, sans-serif;
+  margin:0;
+  background:var(--bege);
+  color:var(--texto);
+  font-family:Arial,Helvetica,sans-serif;
 }
-
 header {
-  background: var(--marrom);
-  color: white;
-  text-align: center;
-  padding: 25px 15px;
+  background:var(--marrom);
+  color:white;
+  text-align:center;
+  padding:25px 15px;
 }
-
-header h1 {
-  margin: 0;
-  font-size: 34px;
-  letter-spacing: 3px;
-}
-
-header p {
-  margin: 7px 0 0;
-  font-size: 13px;
-  letter-spacing: 2px;
-}
-
-main {
-  width: min(1050px, 94%);
-  margin: 25px auto;
-}
-
+header h1 { margin:0; font-size:34px; letter-spacing:3px; }
+header p { margin:7px 0 0; font-size:13px; letter-spacing:2px; }
+main { width:min(1050px,94%); margin:25px auto; }
 .card {
-  background: var(--creme);
-  border: 1px solid var(--borda);
-  border-radius: 15px;
-  padding: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 3px 12px #00000009;
+  background:var(--creme);
+  border:1px solid var(--borda);
+  border-radius:15px;
+  padding:25px;
+  margin-bottom:20px;
+  box-shadow:0 3px 12px #00000009;
 }
-
-.login-card {
-  max-width: 460px;
-  margin: 40px auto;
-}
-
-h2 {
-  margin: 0 0 12px;
-  color: var(--marrom);
-  font-size: 23px;
-}
-
-h3 {
-  margin: 0 0 12px;
-  color: var(--marrom);
-}
-
-.subtitulo {
-  color: #806f5f;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-label {
-  display: block;
-  margin: 15px 0 6px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
+.login-card { max-width:460px; margin:40px auto; }
+h2 { margin:0 0 12px; color:var(--marrom); font-size:23px; }
+.subtitulo { color:#806f5f; font-size:14px; line-height:1.5; }
+label { display:block; margin:15px 0 6px; font-size:14px; font-weight:bold; }
 input {
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #cdbdab;
-  border-radius: 8px;
-  background: white;
-  font-size: 15px;
-  outline-color: var(--verde);
+  width:100%;
+  padding:13px;
+  border:1px solid #cdbdab;
+  border-radius:8px;
+  background:white;
+  font-size:15px;
 }
-
 button {
-  border: 0;
-  border-radius: 8px;
-  padding: 11px 15px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity .2s;
+  border:0;
+  border-radius:8px;
+  padding:11px 15px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
 }
-
-button:hover {
-  opacity: .85;
-}
-
-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.btn-verde {
-  background: var(--verde);
-  color: white;
-}
-
-.btn-marrom {
-  background: var(--marrom);
-  color: white;
-}
-
-.btn-vermelho {
-  background: var(--vermelho);
-  color: white;
-}
-
-.btn-claro {
-  background: #e8dccb;
-  color: var(--marrom);
-}
-
-.btn-largo {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-}
-
-.linha {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.oculto {
-  display: none !important;
-}
-
-.mensagem {
-  margin-top: 12px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.mensagem.erro {
-  color: var(--vermelho);
-}
-
-.mensagem.sucesso {
-  color: var(--verde);
-}
-
-.tabela {
-  overflow-x: auto;
-  margin-top: 18px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  background: #e9ddcc;
-  color: var(--marrom);
-  text-align: left;
-  font-size: 13px;
-  padding: 13px 10px;
-}
-
-td {
-  border-bottom: 1px solid var(--borda);
-  padding: 13px 10px;
-  font-size: 14px;
-  vertical-align: middle;
-}
-
-td strong {
-  font-size: 15px;
-}
-
-.motoboy-acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.motoboy-acoes button {
-  padding: 8px 10px;
-  font-size: 12px;
-}
-
-.estado {
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.estado.sim {
-  color: var(--verde);
-}
-
-.estado.nao {
-  color: var(--vermelho);
-}
-
-.resumo {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 15px;
-}
-
-.resumo-item {
-  background: #f0e5d6;
-  padding: 12px 18px;
-  border-radius: 9px;
-  min-width: 130px;
-}
-
-.resumo-item strong {
-  display: block;
-  font-size: 22px;
-  color: var(--marrom);
-}
-
-.resumo-item span {
-  font-size: 12px;
-  color: #756353;
-}
-
+button:disabled { opacity:.5; cursor:not-allowed; }
+.btn-verde { background:var(--verde); color:white; }
+.btn-marrom { background:var(--marrom); color:white; }
+.btn-vermelho { background:var(--vermelho); color:white; }
+.btn-claro { background:#e8dccb; color:var(--marrom); }
+.btn-largo { width:100%; margin-top:20px; padding:14px; }
+.linha { display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; }
+.acoes { display:flex; flex-wrap:wrap; gap:8px; }
+.oculto { display:none!important; }
+.mensagem { margin-top:12px; font-size:14px; line-height:1.5; }
+.mensagem.erro { color:var(--vermelho); }
+.mensagem.sucesso { color:var(--verde); }
+.tabela { overflow-x:auto; margin-top:18px; }
+table { width:100%; border-collapse:collapse; }
+th { background:#e9ddcc; color:var(--marrom); text-align:left; font-size:13px; padding:13px 10px; }
+td { border-bottom:1px solid var(--borda); padding:13px 10px; font-size:14px; }
+.motoboy-acoes { display:flex; flex-wrap:wrap; gap:7px; }
+.motoboy-acoes button { font-size:12px; padding:10px; }
+.estado { font-size:12px; font-weight:bold; }
+.estado.sim { color:var(--verde); }
+.estado.nao { color:var(--vermelho); }
+.resumo { display:flex; gap:12px; flex-wrap:wrap; margin-top:15px; }
+.resumo-item { background:#f0e5d6; padding:12px 18px; border-radius:9px; }
+.resumo-item strong { display:block; font-size:22px; color:var(--marrom); }
+.resumo-item span { font-size:12px; color:#756353; }
 .modal-fundo {
-  position: fixed;
-  inset: 0;
-  background: #1c140da6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  z-index: 100;
+  position:fixed;
+  inset:0;
+  background:#1c140da6;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+  z-index:100;
 }
-
 .modal {
-  background: var(--creme);
-  border-radius: 15px;
-  width: 100%;
-  max-width: 460px;
-  padding: 25px;
-  max-height: 90vh;
-  overflow-y: auto;
+  background:var(--creme);
+  border-radius:15px;
+  width:100%;
+  max-width:460px;
+  padding:25px;
+  max-height:90vh;
+  overflow-y:auto;
 }
-
-.modal .acoes {
-  margin-top: 22px;
-}
-
-.modal .acoes button {
-  flex: 1;
-}
-
+.modal .acoes { margin-top:22px; }
+.modal .acoes button { flex:1; }
 .aviso {
-  background: #fff3d6;
-  border: 1px solid #e6c879;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 13px;
-  line-height: 1.5;
-  margin-top: 15px;
+  background:#fff3d6;
+  border:1px solid #e6c879;
+  border-radius:8px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin-top:15px;
 }
-
-.rodape {
-  text-align: center;
-  color: #897662;
-  font-size: 12px;
-  padding: 15px;
-}
-
-@media (max-width: 650px) {
-  .card {
-    padding: 17px;
-  }
-
-  .linha {
-    align-items: stretch;
-  }
-
-  .acoes {
-    width: 100%;
-  }
-
-  .acoes button {
-    flex: 1;
-  }
-
-  th, td {
-    padding: 10px 7px;
-  }
-
-  .motoboy-acoes {
-    min-width: 170px;
-  }
+.rodape { text-align:center; color:#897662; font-size:12px; padding:15px; }
+@media(max-width:650px) {
+  .card { padding:17px; }
+  .acoes { width:100%; }
+  .acoes button { flex:1; }
+  th,td { padding:10px 7px; }
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -341,40 +134,16 @@ td strong {
 
 <section id="telaLogin" class="card login-card">
   <h2>Acesso do proprietário</h2>
-
-  <p class="subtitulo">
-    Entre com o código e a senha fornecidos
-    pelo administrador do DAROÇA APP.
-  </p>
-
+  <p class="subtitulo">Entre com o código e a senha do seu restaurante.</p>
   <form id="formLogin">
     <label for="codigo">Código do restaurante</label>
-
-    <input
-      id="codigo"
-      type="text"
-      maxlength="20"
-      autocomplete="username"
-      autocapitalize="none"
-      required
-    >
+    <input id="codigo" maxlength="20" autocomplete="username" required>
 
     <label for="senhaLogin">Senha</label>
-
-    <input
-      id="senhaLogin"
-      type="password"
-      autocomplete="current-password"
-      required
-    >
+    <input id="senhaLogin" type="password" autocomplete="current-password" required>
 
     <div id="mensagemLogin" class="mensagem"></div>
-
-    <button
-      id="btnEntrar"
-      class="btn-verde btn-largo"
-      type="submit"
-    >
+    <button id="btnEntrar" class="btn-verde btn-largo" type="submit">
       Entrar no painel
     </button>
   </form>
@@ -386,26 +155,13 @@ td strong {
     <div class="linha">
       <div>
         <h2 id="nomeRestaurante">Meu restaurante</h2>
-        <p
-          id="codigoRestaurante"
-          class="subtitulo"
-        ></p>
+        <p id="codigoRestaurante" class="subtitulo"></p>
       </div>
-
       <div class="acoes">
-        <button
-          id="btnMinhaSenha"
-          class="btn-claro"
-          type="button"
-        >
+        <button id="btnMinhaSenha" class="btn-claro" type="button">
           Alterar minha senha
         </button>
-
-        <button
-          id="btnSair"
-          class="btn-vermelho"
-          type="button"
-        >
+        <button id="btnSair" class="btn-vermelho" type="button">
           Sair
         </button>
       </div>
@@ -413,22 +169,14 @@ td strong {
   </div>
 
   <div class="card">
-
     <div class="linha">
       <div>
         <h2>Meus motoboys</h2>
-
         <p class="subtitulo">
-          Gerencie os 10 acessos do seu restaurante.
-          Altere logins, senhas e celulares vinculados.
+          Edite os acessos dos seus 10 motoboys ou libere um celular.
         </p>
       </div>
-
-      <button
-        id="btnAtualizar"
-        class="btn-marrom"
-        type="button"
-      >
+      <button id="btnAtualizar" class="btn-marrom" type="button">
         Atualizar lista
       </button>
     </div>
@@ -438,7 +186,6 @@ td strong {
         <strong id="totalMotoboys">0</strong>
         <span>Logins cadastrados</span>
       </div>
-
       <div class="resumo-item">
         <strong id="totalVinculados">0</strong>
         <span>Celulares vinculados</span>
@@ -457,69 +204,40 @@ td strong {
             <th>Ações</th>
           </tr>
         </thead>
-
-        <tbody id="listaMotoboys">
-          <tr>
-            <td colspan="4">
-              Carregando motoboys...
-            </td>
-          </tr>
-        </tbody>
+        <tbody id="listaMotoboys"></tbody>
       </table>
     </div>
 
     <div class="aviso">
-      <strong>Importante:</strong>
-      Ao trocar o login ou substituir um motoboy,
-      o celular anterior será desvinculado.
-      O novo motoboy deverá entrar novamente no aplicativo.
-      A quantidade de acessos continua a mesma.
+      <strong>Como funciona:</strong>
+      em <strong>Editar login/senha</strong>, você pode mudar apenas
+      o login, apenas a senha ou os dois. Deixe a senha vazia para
+      mantê-la. O botão <strong>Desvincular</strong> libera o celular
+      sem alterar login ou senha.
     </div>
-
   </div>
 
 </section>
-
 </main>
 
 <div id="modalFundo" class="modal-fundo oculto">
-  <div
-    class="modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="tituloModal"
-  >
-
-    <h2 id="tituloModal">Alterar dados</h2>
-
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <h2 id="tituloModal">Editar motoboy</h2>
     <p id="descricaoModal" class="subtitulo"></p>
 
     <form id="formModal">
-
       <div id="camposModal"></div>
-
       <div id="mensagemModal" class="mensagem"></div>
 
       <div class="acoes">
-        <button
-          id="btnCancelarModal"
-          class="btn-claro"
-          type="button"
-        >
+        <button id="btnCancelarModal" class="btn-claro" type="button">
           Cancelar
         </button>
-
-        <button
-          id="btnSalvarModal"
-          class="btn-verde"
-          type="submit"
-        >
-          Salvar
+        <button id="btnSalvarModal" class="btn-verde" type="submit">
+          Salvar alterações
         </button>
       </div>
-
     </form>
-
   </div>
 </div>
 
@@ -530,10 +248,7 @@ td strong {
 <script>
 "use strict";
 
-/* CONFIGURAÇÃO */
-
-const API =
-  "https://daroca-licencas.darocarestaurante1.workers.dev";
+const API = "https://daroca-licencas.darocarestaurante1.workers.dev";
 
 let tokenRestaurante = "";
 let restauranteAtual = null;
@@ -541,58 +256,32 @@ let motoboys = [];
 let acaoModal = null;
 let loginSelecionado = "";
 
-/* ELEMENTOS */
-
 function $(id) {
   return document.getElementById(id);
 }
 
 function mensagem(id, texto, tipo = "") {
   const elemento = $(id);
-
   elemento.textContent = texto || "";
   elemento.className = "mensagem";
-
-  if (tipo) {
-    elemento.classList.add(tipo);
-  }
+  if (tipo) elemento.classList.add(tipo);
 }
 
-function criarElemento(tag, texto, classe) {
-  const elemento = document.createElement(tag);
-
-  if (texto !== undefined) {
-    elemento.textContent = texto;
-  }
-
-  if (classe) {
-    elemento.className = classe;
-  }
-
-  return elemento;
+function elemento(tag, texto, classe) {
+  const el = document.createElement(tag);
+  if (texto !== undefined) el.textContent = texto;
+  if (classe) el.className = classe;
+  return el;
 }
 
-/* API */
-
-async function requisicao(
-  caminho,
-  metodo = "GET",
-  dados = null
-) {
-  const headers = {
-    "Accept": "application/json"
-  };
+async function requisicao(caminho, metodo = "GET", dados = null) {
+  const headers = { Accept: "application/json" };
 
   if (tokenRestaurante) {
-    headers.Authorization =
-      "Bearer " + tokenRestaurante;
+    headers.Authorization = "Bearer " + tokenRestaurante;
   }
 
-  const opcoes = {
-    method: metodo,
-    headers,
-    cache: "no-store"
-  };
+  const opcoes = { method: metodo, headers, cache: "no-store" };
 
   if (dados !== null) {
     headers["Content-Type"] = "application/json";
@@ -600,390 +289,199 @@ async function requisicao(
   }
 
   let resposta;
-
   try {
-    resposta = await fetch(
-      API + caminho,
-      opcoes
-    );
+    resposta = await fetch(API + caminho, opcoes);
   } catch {
-    throw new Error(
-      "Não foi possível conectar ao servidor."
-    );
+    throw new Error("Não foi possível conectar ao servidor.");
   }
 
   let resultado;
-
   try {
     resultado = await resposta.json();
   } catch {
-    throw new Error(
-      "O servidor retornou uma resposta inválida."
-    );
+    throw new Error("O servidor retornou uma resposta inválida.");
   }
 
   if (!resposta.ok || resultado.sucesso === false) {
-    if (
-      resposta.status === 401 &&
-      caminho !== "/restaurante/login"
-    ) {
+    const texto = resultado.erro || resultado.mensagem ||
+      "Não foi possível concluir a operação.";
+
+    if (resposta.status === 401 && caminho !== "/restaurante/login") {
       sair(false);
     }
 
-    throw new Error(
-      resultado.erro ||
-      resultado.mensagem ||
-      "Não foi possível concluir a operação."
-    );
+    throw new Error(texto);
   }
 
   return resultado;
 }
 
-/* LOGIN */
+$("formLogin").addEventListener("submit", async evento => {
+  evento.preventDefault();
 
-$("formLogin").addEventListener(
-  "submit",
-  async evento => {
-    evento.preventDefault();
+  const codigo = $("codigo").value.trim().toLowerCase();
+  const senha = $("senhaLogin").value;
 
-    const codigo = $("codigo")
-      .value.trim().toLowerCase();
+  $("btnEntrar").disabled = true;
+  mensagem("mensagemLogin", "Verificando acesso...");
 
-    const senha = $("senhaLogin").value;
+  try {
+    tokenRestaurante = "";
 
-    if (!codigo || !senha) {
-      mensagem(
-        "mensagemLogin",
-        "Informe o código e a senha.",
-        "erro"
-      );
-      return;
-    }
-
-    $("btnEntrar").disabled = true;
-
-    mensagem(
-      "mensagemLogin",
-      "Verificando acesso..."
+    const resultado = await requisicao(
+      "/restaurante/login", "POST", { codigo, senha }
     );
 
-    try {
-      tokenRestaurante = "";
+    tokenRestaurante = resultado.token;
+    restauranteAtual = resultado.restaurante || {
+      nome: "Meu restaurante", codigo
+    };
 
-      const resultado = await requisicao(
-        "/restaurante/login",
-        "POST",
-        { codigo, senha }
-      );
+    $("nomeRestaurante").textContent = restauranteAtual.nome;
+    $("codigoRestaurante").textContent =
+      "Código: " + restauranteAtual.codigo;
 
-      tokenRestaurante = resultado.token;
+    $("senhaLogin").value = "";
+    $("telaLogin").classList.add("oculto");
+    $("telaPainel").classList.remove("oculto");
 
-      restauranteAtual =
-        resultado.restaurante || {
-          nome: "Meu restaurante",
-          codigo
-        };
+    mensagem("mensagemLogin", "");
+    await carregarMotoboys();
 
-      $("nomeRestaurante").textContent =
-        restauranteAtual.nome;
-
-      $("codigoRestaurante").textContent =
-        "Código: " + restauranteAtual.codigo;
-
-      $("senhaLogin").value = "";
-
-      $("telaLogin").classList.add("oculto");
-      $("telaPainel").classList.remove("oculto");
-
-      mensagem("mensagemLogin", "");
-
-      await carregarMotoboys();
-
-    } catch (erro) {
-      if (!$("telaLogin").classList.contains("oculto")) {
-        mensagem(
-          "mensagemLogin",
-          erro.message,
-          "erro"
-        );
-      } else {
-        mensagem(
-          "mensagemPainel",
-          erro.message,
-          "erro"
-        );
-      }
-    } finally {
-      $("btnEntrar").disabled = false;
-    }
+  } catch (erro) {
+    const destino = $("telaLogin").classList.contains("oculto")
+      ? "mensagemPainel" : "mensagemLogin";
+    mensagem(destino, erro.message, "erro");
+  } finally {
+    $("btnEntrar").disabled = false;
   }
-);
+});
 
-/* SAIR */
-
-function sair(limparMensagem = true) {
+function sair(limpar = true) {
   tokenRestaurante = "";
   restauranteAtual = null;
   motoboys = [];
-
   fecharModal();
 
   $("telaPainel").classList.add("oculto");
   $("telaLogin").classList.remove("oculto");
-
   $("listaMotoboys").replaceChildren();
-
   $("totalMotoboys").textContent = "0";
   $("totalVinculados").textContent = "0";
-
   $("senhaLogin").value = "";
 
-  if (limparMensagem) {
-    mensagem("mensagemLogin", "");
-  } else {
-    mensagem(
-      "mensagemLogin",
-      "Sua sessão expirou. Entre novamente.",
-      "erro"
-    );
-  }
+  mensagem(
+    "mensagemLogin",
+    limpar ? "" : "Sua sessão expirou. Entre novamente.",
+    limpar ? "" : "erro"
+  );
 }
 
-$("btnSair").addEventListener(
-  "click",
-  () => sair()
-);
-
-/* CARREGAR MOTOBOYS */
+$("btnSair").addEventListener("click", () => sair());
 
 async function carregarMotoboys() {
-  mensagem(
-    "mensagemPainel",
-    "Atualizando lista..."
-  );
-
   $("btnAtualizar").disabled = true;
+  mensagem("mensagemPainel", "Atualizando lista...");
 
   try {
-    const resultado = await requisicao(
-      "/restaurante/motoboys"
-    );
-
+    const resultado = await requisicao("/restaurante/motoboys");
     motoboys = Array.isArray(resultado.motoboys)
-      ? resultado.motoboys
-      : [];
-
+      ? resultado.motoboys : [];
     renderizarMotoboys();
-
     mensagem("mensagemPainel", "");
-
   } catch (erro) {
-    mensagem(
-      "mensagemPainel",
-      erro.message,
-      "erro"
-    );
+    mensagem("mensagemPainel", erro.message, "erro");
   } finally {
     $("btnAtualizar").disabled = false;
   }
 }
 
-$("btnAtualizar").addEventListener(
-  "click",
-  carregarMotoboys
-);
-
-/* TABELA */
+$("btnAtualizar").addEventListener("click", carregarMotoboys);
 
 function renderizarMotoboys() {
   const lista = $("listaMotoboys");
   lista.replaceChildren();
 
-  $("totalMotoboys").textContent =
-    String(motoboys.length);
+  $("totalMotoboys").textContent = String(motoboys.length);
+  $("totalVinculados").textContent = String(
+    motoboys.filter(m => Boolean(m.dispositivo_id)).length
+  );
 
-  $("totalVinculados").textContent =
-    String(
-      motoboys.filter(
-        m => Boolean(m.dispositivo_id)
-      ).length
-    );
-
-  if (motoboys.length === 0) {
-    const linha = criarElemento("tr");
-    const coluna = criarElemento(
-      "td",
-      "Nenhum motoboy encontrado."
-    );
-
-    coluna.colSpan = 4;
-    linha.appendChild(coluna);
-    lista.appendChild(linha);
+  if (!motoboys.length) {
+    const tr = elemento("tr");
+    const td = elemento("td", "Nenhum motoboy encontrado.");
+    td.colSpan = 4;
+    tr.appendChild(td);
+    lista.appendChild(tr);
     return;
   }
 
-  motoboys.forEach(motoboy => {
-    const linha = criarElemento("tr");
+  motoboys.forEach(m => {
+    const tr = elemento("tr");
+    const tdLogin = elemento("td");
+    const tdCelular = elemento("td");
+    const tdStatus = elemento("td");
+    const tdAcoes = elemento("td");
 
-    const colunaLogin = criarElemento("td");
-    colunaLogin.appendChild(
-      criarElemento("strong", motoboy.login)
+    tdLogin.appendChild(elemento("strong", m.login));
+
+    const vinculado = Boolean(m.dispositivo_id);
+    tdCelular.appendChild(elemento(
+      "span",
+      vinculado ? "Vinculado" : "Livre",
+      vinculado ? "estado sim" : "estado nao"
+    ));
+
+    tdStatus.appendChild(elemento(
+      "span",
+      m.ativo ? "Ativo" : "Bloqueado",
+      m.ativo ? "estado sim" : "estado nao"
+    ));
+
+    const acoes = elemento("div", undefined, "motoboy-acoes");
+
+    const editar = elemento(
+      "button", "Editar login/senha", "btn-verde"
+    );
+    editar.type = "button";
+    editar.addEventListener("click", () => abrirModal("editar", m.login));
+
+    const desvincular = elemento(
+      "button", "Desvincular", "btn-vermelho"
+    );
+    desvincular.type = "button";
+    desvincular.disabled = !vinculado;
+    desvincular.addEventListener(
+      "click", () => desvincularCelular(m.login)
     );
 
-    const colunaCelular = criarElemento("td");
-
-    const celularVinculado =
-      Boolean(motoboy.dispositivo_id);
-
-    colunaCelular.appendChild(
-      criarElemento(
-        "span",
-        celularVinculado
-          ? "Vinculado"
-          : "Livre",
-        celularVinculado
-          ? "estado sim"
-          : "estado nao"
-      )
-    );
-
-    const colunaStatus = criarElemento("td");
-
-    colunaStatus.appendChild(
-      criarElemento(
-        "span",
-        motoboy.ativo
-          ? "Ativo"
-          : "Bloqueado",
-        motoboy.ativo
-          ? "estado sim"
-          : "estado nao"
-      )
-    );
-
-    const colunaAcoes = criarElemento("td");
-    const acoes = criarElemento(
-      "div",
-      undefined,
-      "motoboy-acoes"
-    );
-
-    const botaoLogin = criarElemento(
-      "button",
-      "Alterar login",
-      "btn-marrom"
-    );
-
-    botaoLogin.type = "button";
-    botaoLogin.addEventListener(
-      "click",
-      () => abrirModal("login", motoboy.login)
-    );
-
-    const botaoSenha = criarElemento(
-      "button",
-      "Alterar senha",
-      "btn-verde"
-    );
-
-    botaoSenha.type = "button";
-    botaoSenha.addEventListener(
-      "click",
-      () => abrirModal("senha", motoboy.login)
-    );
-
-    const botaoTrocar = criarElemento(
-      "button",
-      "Substituir",
-      "btn-claro"
-    );
-
-    botaoTrocar.type = "button";
-    botaoTrocar.addEventListener(
-      "click",
-      () => abrirModal("substituir", motoboy.login)
-    );
-
-    const botaoDesvincular = criarElemento(
-      "button",
-      "Desvincular",
-      "btn-vermelho"
-    );
-
-    botaoDesvincular.type = "button";
-
-    botaoDesvincular.disabled =
-      !celularVinculado;
-
-    botaoDesvincular.addEventListener(
-      "click",
-      () => desvincularCelular(motoboy.login)
-    );
-
-    acoes.appendChild(botaoLogin);
-    acoes.appendChild(botaoSenha);
-    acoes.appendChild(botaoTrocar);
-    acoes.appendChild(botaoDesvincular);
-
-    colunaAcoes.appendChild(acoes);
-
-    linha.appendChild(colunaLogin);
-    linha.appendChild(colunaCelular);
-    linha.appendChild(colunaStatus);
-    linha.appendChild(colunaAcoes);
-
-    lista.appendChild(linha);
+    acoes.append(editar, desvincular);
+    tdAcoes.appendChild(acoes);
+    tr.append(tdLogin, tdCelular, tdStatus, tdAcoes);
+    lista.appendChild(tr);
   });
 }
 
-/* CAMPOS DOS MODAIS */
-
-function adicionarCampo(
-  id,
-  titulo,
-  tipo = "text",
-  valor = "",
-  minimo = null,
-  maximo = null
-) {
-  const container = $("camposModal");
-
-  const label = criarElemento("label", titulo);
+function adicionarCampo(id, titulo, tipo = "text", valor = "") {
+  const label = elemento("label", titulo);
   label.htmlFor = id;
 
-  const input = criarElemento("input");
-
+  const input = elemento("input");
   input.id = id;
   input.type = tipo;
   input.value = valor;
-  input.required = true;
-
-  if (minimo !== null) {
-    input.minLength = minimo;
-  }
-
-  if (maximo !== null) {
-    input.maxLength = maximo;
-  }
 
   if (tipo === "text") {
     input.autocapitalize = "none";
     input.autocomplete = "off";
     input.spellcheck = false;
-  }
-
-  if (tipo === "password") {
+  } else {
     input.autocomplete = "new-password";
   }
 
-  container.appendChild(label);
-  container.appendChild(input);
-
+  $("camposModal").append(label, input);
   return input;
 }
-
-/* ABRIR MODAL */
 
 function abrirModal(acao, login = "") {
   acaoModal = acao;
@@ -992,423 +490,225 @@ function abrirModal(acao, login = "") {
   $("camposModal").replaceChildren();
   mensagem("mensagemModal", "");
 
-  $("btnSalvarModal").disabled = false;
-  $("btnCancelarModal").disabled = false;
+  if (acao === "editar") {
+    $("tituloModal").textContent = "Editar login/senha";
+    $("descricaoModal").textContent = "Motoboy: " + login;
 
-  $("btnSalvarModal").textContent = "Salvar";
-
-  if (acao === "login") {
-    $("tituloModal").textContent =
-      "Alterar login do motoboy";
-
-    $("descricaoModal").textContent =
-      "Login atual: " + login;
-
-    adicionarCampo(
-      "novoLogin",
-      "Novo login",
-      "text",
-      login,
-      5,
-      22
+    const campoLogin = adicionarCampo(
+      "novoLogin", "Login", "text", login
     );
+    campoLogin.required = true;
+    campoLogin.minLength = 5;
+    campoLogin.maxLength = 22;
 
-    $("btnSalvarModal").textContent =
-      "Alterar login";
-  }
-
-  if (acao === "senha") {
-    $("tituloModal").textContent =
-      "Alterar senha do motoboy";
-
-    $("descricaoModal").textContent =
-      "Motoboy: " + login;
-
-    adicionarCampo(
-      "novaSenha",
-      "Nova senha",
-      "password",
-      "",
-      8,
-      72
+    const senha = adicionarCampo(
+      "novaSenha", "Nova senha (opcional)", "password"
     );
+    senha.maxLength = 72;
 
-    adicionarCampo(
-      "confirmarSenha",
-      "Confirmar nova senha",
-      "password",
-      "",
-      8,
-      72
+    const confirmar = adicionarCampo(
+      "confirmarSenha", "Confirmar nova senha", "password"
     );
+    confirmar.maxLength = 72;
 
-    $("btnSalvarModal").textContent =
-      "Alterar senha";
-  }
-
-  if (acao === "substituir") {
-    $("tituloModal").textContent =
-      "Substituir motoboy";
-
-    $("descricaoModal").textContent =
-      "Você está substituindo o motoboy " +
-      login + ".";
-
-    adicionarCampo(
-      "novoLogin",
-      "Login do novo motoboy",
-      "text",
-      login,
-      5,
-      22
-    );
-
-    adicionarCampo(
-      "novaSenha",
-      "Senha do novo motoboy",
-      "password",
-      "",
-      8,
-      72
-    );
-
-    adicionarCampo(
-      "confirmarSenha",
-      "Confirmar senha",
-      "password",
-      "",
-      8,
-      72
-    );
-
-    const aviso = criarElemento(
+    $("camposModal").appendChild(elemento(
       "div",
-      "O celular anterior será desvinculado. " +
-      "O novo motoboy deverá fazer login no aplicativo.",
+      "Se não quiser alterar a senha, deixe os dois campos de senha vazios. " +
+      "Se alterar o login, o celular atual será desvinculado.",
       "aviso"
-    );
-
-    $("camposModal").appendChild(aviso);
-
-    $("btnSalvarModal").textContent =
-      "Confirmar substituição";
+    ));
   }
 
   if (acao === "minhaSenha") {
-    $("tituloModal").textContent =
-      "Alterar minha senha";
-
+    $("tituloModal").textContent = "Alterar minha senha";
     $("descricaoModal").textContent =
-      "Altere a senha de acesso ao painel do restaurante.";
+      "Altere a senha do proprietário do restaurante.";
 
-    adicionarCampo(
-      "senhaAtual",
-      "Senha atual",
-      "password"
+    const atual = adicionarCampo(
+      "senhaAtual", "Senha atual", "password"
     );
+    atual.required = true;
 
-    adicionarCampo(
-      "novaSenha",
-      "Nova senha",
-      "password",
-      "",
-      8,
-      72
+    const nova = adicionarCampo(
+      "novaSenha", "Nova senha", "password"
     );
+    nova.required = true;
 
-    adicionarCampo(
-      "confirmarSenha",
-      "Confirmar nova senha",
-      "password",
-      "",
-      8,
-      72
+    const confirmar = adicionarCampo(
+      "confirmarSenha", "Confirmar nova senha", "password"
     );
-
-    $("btnSalvarModal").textContent =
-      "Alterar minha senha";
+    confirmar.required = true;
   }
 
+  $("btnSalvarModal").disabled = false;
+  $("btnCancelarModal").disabled = false;
   $("modalFundo").classList.remove("oculto");
 
-  const primeiroCampo =
-    $("camposModal").querySelector("input");
-
-  if (primeiroCampo) {
-    primeiroCampo.focus();
-  }
+  const primeiro = $("camposModal").querySelector("input");
+  if (primeiro) primeiro.focus();
 }
-
-/* FECHAR MODAL */
 
 function fecharModal() {
   $("modalFundo").classList.add("oculto");
-
   $("camposModal").replaceChildren();
   mensagem("mensagemModal", "");
-
   acaoModal = null;
   loginSelecionado = "";
 }
 
-$("btnCancelarModal").addEventListener(
-  "click",
-  fecharModal
-);
+$("btnCancelarModal").addEventListener("click", fecharModal);
 
-$("modalFundo").addEventListener(
-  "click",
-  evento => {
-    if (evento.target === $("modalFundo")) {
-      fecharModal();
-    }
-  }
-);
+$("modalFundo").addEventListener("click", evento => {
+  if (evento.target === $("modalFundo")) fecharModal();
+});
 
-document.addEventListener(
-  "keydown",
-  evento => {
-    if (
-      evento.key === "Escape" &&
-      !$("modalFundo").classList.contains("oculto")
-    ) {
-      fecharModal();
-    }
-  }
-);
+document.addEventListener("keydown", evento => {
+  if (evento.key === "Escape") fecharModal();
+});
 
 $("btnMinhaSenha").addEventListener(
-  "click",
-  () => abrirModal("minhaSenha")
+  "click", () => abrirModal("minhaSenha")
 );
 
-/* VALIDAÇÕES */
+$("formModal").addEventListener("submit", async evento => {
+  evento.preventDefault();
+  if (!acaoModal) return;
 
-function normalizarLogin(valor) {
-  return String(valor || "")
-    .trim()
-    .toLowerCase();
-}
+  const acao = acaoModal;
+  const loginAtual = loginSelecionado;
 
-function validarNovoLogin(login) {
-  return /^[a-z0-9]{5,22}$/.test(login);
-}
+  $("btnSalvarModal").disabled = true;
+  $("btnCancelarModal").disabled = true;
 
-function validarSenha() {
-  const novaSenha = $("novaSenha").value;
-  const confirmacao = $("confirmarSenha").value;
+  try {
+    let caminho;
+    let dados;
 
-  if (
-    novaSenha.length < 8 ||
-    novaSenha.length > 72
-  ) {
-    throw new Error(
-      "A senha deve ter de 8 a 72 caracteres."
-    );
-  }
+    if (acao === "editar") {
+      const novoLogin = $("novoLogin").value.trim().toLowerCase();
+      const novaSenha = $("novaSenha").value;
+      const confirmar = $("confirmarSenha").value;
 
-  if (novaSenha !== confirmacao) {
-    throw new Error(
-      "As senhas digitadas não são iguais."
-    );
-  }
-
-  return novaSenha;
-}
-
-/* SALVAR MODAL */
-
-$("formModal").addEventListener(
-  "submit",
-  async evento => {
-    evento.preventDefault();
-
-    if (!acaoModal) return;
-
-    $("btnSalvarModal").disabled = true;
-    $("btnCancelarModal").disabled = true;
-
-    mensagem(
-      "mensagemModal",
-      "Salvando alterações..."
-    );
-
-    try {
-      let resultado;
-
-      if (acaoModal === "login") {
-        const novoLogin = normalizarLogin(
-          $("novoLogin").value
+      if (!/^[a-z0-9]{5,22}$/.test(novoLogin)) {
+        throw new Error(
+          "O login deve ter de 5 a 22 letras ou números."
         );
+      }
 
-        if (!validarNovoLogin(novoLogin)) {
+      const mudouLogin = novoLogin !== loginAtual;
+      const mudouSenha = novaSenha !== "" || confirmar !== "";
+
+      if (!mudouLogin && !mudouSenha) {
+        throw new Error("Nenhuma alteração foi feita.");
+      }
+
+      if (mudouSenha) {
+        if (novaSenha.length < 8 || novaSenha.length > 72) {
           throw new Error(
-            "O login deve ter de 5 a 22 letras ou números."
+            "A nova senha deve ter de 8 a 72 caracteres."
           );
         }
 
-        if (novoLogin === loginSelecionado) {
-          throw new Error(
-            "Escolha um login diferente do atual."
-          );
+        if (novaSenha !== confirmar) {
+          throw new Error("As senhas não são iguais.");
         }
+      }
 
+      if (mudouLogin && mudouSenha) {
+        caminho = "/restaurante/motoboy/substituir";
+        dados = {
+          login: loginAtual,
+          novo_login: novoLogin,
+          nova_senha: novaSenha
+        };
+      } else if (mudouLogin) {
+        caminho = "/restaurante/motoboy/login";
+        dados = {
+          login: loginAtual,
+          novo_login: novoLogin
+        };
+      } else {
+        caminho = "/restaurante/motoboy/senha";
+        dados = {
+          login: loginAtual,
+          nova_senha: novaSenha
+        };
+      }
+
+      if (mudouLogin) {
         if (!confirm(
-          "Alterar o login de " +
-          loginSelecionado +
-          " para " +
-          novoLogin +
-          "?\n\nO celular anterior será desvinculado."
-        )) {
-          return;
-        }
+          "Confirmar alteração do login?\n\n" +
+          "O celular atual será desvinculado."
+        )) return;
+      }
+    }
 
-        resultado = await requisicao(
-          "/restaurante/motoboy/login",
-          "POST",
-          {
-            login: loginSelecionado,
-            novo_login: novoLogin
-          }
+    if (acao === "minhaSenha") {
+      const senhaAtual = $("senhaAtual").value;
+      const novaSenha = $("novaSenha").value;
+      const confirmar = $("confirmarSenha").value;
+
+      if (novaSenha.length < 8 || novaSenha.length > 72) {
+        throw new Error(
+          "A nova senha deve ter de 8 a 72 caracteres."
         );
       }
 
-      if (acaoModal === "senha") {
-        const novaSenha = validarSenha();
-
-        resultado = await requisicao(
-          "/restaurante/motoboy/senha",
-          "POST",
-          {
-            login: loginSelecionado,
-            nova_senha: novaSenha
-          }
-        );
+      if (novaSenha !== confirmar) {
+        throw new Error("As senhas não são iguais.");
       }
 
-      if (acaoModal === "substituir") {
-        const novoLogin = normalizarLogin(
-          $("novoLogin").value
-        );
-
-        if (!validarNovoLogin(novoLogin)) {
-          throw new Error(
-            "O login deve ter de 5 a 22 letras ou números."
-          );
-        }
-
-        const novaSenha = validarSenha();
-
-        if (!confirm(
-          "Confirma a substituição de " +
-          loginSelecionado +
-          "?\n\nO acesso anterior será invalidado " +
-          "e o celular será desvinculado."
-        )) {
-          return;
-        }
-
-        resultado = await requisicao(
-          "/restaurante/motoboy/substituir",
-          "POST",
-          {
-            login: loginSelecionado,
-            novo_login: novoLogin,
-            nova_senha: novaSenha
-          }
-        );
+      if (senhaAtual === novaSenha) {
+        throw new Error("Escolha uma senha diferente da atual.");
       }
 
-      if (acaoModal === "minhaSenha") {
-        const senhaAtual = $("senhaAtual").value;
-        const novaSenha = validarSenha();
+      caminho = "/restaurante/senha";
+      dados = {
+        senha_atual: senhaAtual,
+        nova_senha: novaSenha
+      };
+    }
 
-        if (senhaAtual === novaSenha) {
-          throw new Error(
-            "A nova senha deve ser diferente da atual."
-          );
-        }
+    mensagem("mensagemModal", "Salvando alterações...");
 
-        resultado = await requisicao(
-          "/restaurante/senha",
-          "POST",
-          {
-            senha_atual: senhaAtual,
-            nova_senha: novaSenha
-          }
-        );
-      }
+    const resultado = await requisicao(caminho, "POST", dados);
+    fecharModal();
 
-      const eraSenhaProprietario =
-        acaoModal === "minhaSenha";
-
-      fecharModal();
-
-      if (eraSenhaProprietario) {
-        sair();
-
-        mensagem(
-          "mensagemLogin",
-          "Senha alterada com sucesso. " +
-          "Entre novamente com sua nova senha.",
-          "sucesso"
-        );
-
-        return;
-      }
-
-      await carregarMotoboys();
-
+    if (acao === "minhaSenha") {
+      sair();
       mensagem(
-        "mensagemPainel",
-        resultado.mensagem ||
-        "Alteração realizada com sucesso.",
+        "mensagemLogin",
+        "Senha alterada! Entre novamente com a nova senha.",
         "sucesso"
       );
-
-    } catch (erro) {
-      mensagem(
-        "mensagemModal",
-        erro.message,
-        "erro"
-      );
-    } finally {
-      $("btnSalvarModal").disabled = false;
-      $("btnCancelarModal").disabled = false;
+      return;
     }
-  }
-);
 
-/* DESVINCULAR CELULAR */
+    await carregarMotoboys();
+    mensagem(
+      "mensagemPainel",
+      resultado.mensagem || "Alterações salvas com sucesso.",
+      "sucesso"
+    );
+
+  } catch (erro) {
+    mensagem("mensagemModal", erro.message, "erro");
+  } finally {
+    $("btnSalvarModal").disabled = false;
+    $("btnCancelarModal").disabled = false;
+  }
+});
 
 async function desvincularCelular(login) {
-  const motoboy = motoboys.find(
-    m => m.login === login
-  );
+  const motoboy = motoboys.find(m => m.login === login);
+  if (!motoboy || !motoboy.dispositivo_id) return;
 
-  if (!motoboy) {
-    alert("Motoboy não encontrado.");
-    return;
-  }
+  if (!confirm(
+    "Desvincular o celular de " + login + "?\n\n" +
+    "O login e a senha continuarão os mesmos."
+  )) return;
 
-  if (!motoboy.dispositivo_id) {
-    alert("Este motoboy não possui celular vinculado.");
-    return;
-  }
-
-  const confirmado = confirm(
-    "Deseja desvincular o celular de " +
-    login +
-    "?\n\nO aparelho atual perderá o acesso " +
-    "e será necessário fazer login novamente."
-  );
-
-  if (!confirmado) return;
-
-  mensagem(
-    "mensagemPainel",
-    "Desvinculando celular..."
-  );
+  mensagem("mensagemPainel", "Desvinculando celular...");
 
   try {
     const resultado = await requisicao(
@@ -1418,23 +718,15 @@ async function desvincularCelular(login) {
     );
 
     await carregarMotoboys();
-
     mensagem(
       "mensagemPainel",
-      resultado.mensagem ||
-      "Celular desvinculado com sucesso.",
+      resultado.mensagem || "Celular desvinculado com sucesso.",
       "sucesso"
     );
-
   } catch (erro) {
-    mensagem(
-      "mensagemPainel",
-      erro.message,
-      "erro"
-    );
+    mensagem("mensagemPainel", erro.message, "erro");
   }
 }
 </script>
-
 </body>
 </html>
