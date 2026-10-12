@@ -1,0 +1,82 @@
+
+name: Gerar APK DAROCA Producao
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Verificar segredos
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DAROCA_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.DAROCA_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DAROCA_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.DAROCA_KEY_PASSWORD }}
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" ||
+                -z "$STORE_PASSWORD" ||
+                -z "$KEY_ALIAS" ||
+                -z "$KEY_PASSWORD" ]]; then
+            echo "Faltam segredos de assinatura."
+            exit 1
+          fi
+
+      - name: Compilar APK de producao
+        run: gradle assembleRelease
+
+      - name: Assinar APK
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DAROCA_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.DAROCA_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DAROCA_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.DAROCA_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+
+          echo "$KEYSTORE_BASE64" |
+            base64 --decode > "$RUNNER_TEMP/daroca-release.jks"
+
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+
+          "$BUILD_TOOLS/zipalign" -f -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            "$RUNNER_TEMP/daroca-aligned.apk"
+
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks "$RUNNER_TEMP/daroca-release.jks" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:STORE_PASSWORD \
+            --key-pass env:KEY_PASSWORD \
+            --out DAROCA-APP-Producao.apk \
+            "$RUNNER_TEMP/daroca-aligned.apk"
+
+          "$BUILD_TOOLS/apksigner" verify \
+            --verbose \
+            DAROCA-APP-Producao.apk
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAROCA-APP-Producao
+          path: DAROCA-APP-Producao.apk
+          retention-days: 30
