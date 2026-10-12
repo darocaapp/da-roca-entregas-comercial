@@ -1278,32 +1278,73 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String encontrarLocalizador(
-        String texto
-    ) {
+    private String encontrarLocalizador(String texto) {
+        if (texto == null || texto.trim().isEmpty()) return "";
 
-        if (
-            texto == null ||
-            texto.trim().isEmpty()
-        ) {
-            return "";
+        String[] linhas = texto.toUpperCase(Locale.ROOT)
+            .replace("\r\n", "\n")
+            .replace('\r', '\n')
+            .split("\n");
+
+        // Preserva o reconhecimento que ja funciona nas comandas normais.
+        String codigo = buscaTradicional(linhas);
+        if (!codigo.isEmpty()) return codigo;
+
+        codigo = buscaFlexivel(linhas);
+        if (!codigo.isEmpty()) return codigo;
+
+        // Aceita LOCALIZADOR repartido em ate tres linhas, em qualquer
+        // posicao, inclusive com espacos, pontuacao e erros comuns de OCR.
+        for (int i = 0; i < linhas.length; i++) {
+            for (int partes = 1; partes <= 3 && i + partes <= linhas.length; partes++) {
+                StringBuilder unidas = new StringBuilder();
+                for (int j = i; j < i + partes; j++) {
+                    unidas.append(linhas[j]).append(" ");
+                }
+
+                String bruto = unidas.toString();
+                String compacto = normalizarPalavraOCR(bruto);
+                if (!contemLocalizadorOCR(compacto)) continue;
+
+                // So captura codigo apos a etiqueta, nunca numeros anteriores.
+                // A etiqueta pode ocupar 1, 2 ou 3 linhas.
+                StringBuilder trecho = new StringBuilder();
+                for (int j = i + partes - 1;
+                     j < linhas.length && j <= i + partes + 1; j++) {
+                    trecho.append(linhas[j]).append(" ");
+                }
+
+                // Se houver ':' na ultima linha da etiqueta, prioriza o
+                // conteudo depois dele, reduzindo falsos positivos.
+                String restante = trecho.toString();
+                int doisPontos = restante.indexOf(':');
+                if (doisPontos >= 0) restante = restante.substring(doisPontos + 1);
+
+                Matcher numeros = Pattern.compile("(?<!\\d)\\d(?:[ \t.-]*\\d){7}(?![ \t.-]*\\d)")
+                    .matcher(restante);
+                if (numeros.find()) {
+                    String candidato = digitsOnly(numeros.group());
+                    if (candidato.length() == 8) return candidato;
+                }
+            }
         }
+        return "";
+    }
 
-        String normalizado =
-            texto.toUpperCase(Locale.ROOT)
-                .replace("\r", "\n");
+    private String normalizarPalavraOCR(String valor) {
+        return valor.toUpperCase(Locale.ROOT)
+            .replace('0', 'O')
+            .replace('1', 'I')
+            .replace('5', 'S')
+            .replace('8', 'B')
+            .replaceAll("[^A-Z]", "");
+    }
 
-        String[] linhas =
-            normalizado.split("\n");
-
-        String codigo =
-            buscaTradicional(linhas);
-
-        if (!codigo.isEmpty()) {
-            return codigo;
-        }
-
-        return buscaFlexivel(linhas);
+    private boolean contemLocalizadorOCR(String texto) {
+        String alvo = "LOCALIZADOR";
+        if (texto.contains(alvo)) return true;
+        // Aceita ate um caractere incorreto, ausente ou duplicado.
+        return contemPalavraParecida(texto, alvo);
     }
 
     private String buscaTradicional(
