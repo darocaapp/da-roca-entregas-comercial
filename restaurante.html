@@ -1,793 +1,1440 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#513a29">
-  <title>DAROÇA | Painel do Restaurante</title>
-  <style>
-    :root {
-      --marrom: #513a29;
-      --marrom-escuro: #342519;
-      --bege: #f5eddf;
-      --creme: #fffaf2;
-      --verde: #347b48;
-      --vermelho: #b13e35;
-      --borda: #e4d8c7;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#543a29">
+<title>DAROÇA APP | Painel do Restaurante</title>
 
-    * { box-sizing: border-box; }
+<style>
+:root {
+  --marrom: #543a29;
+  --marrom-escuro: #382519;
+  --bege: #f5eee4;
+  --creme: #fffaf3;
+  --verde: #28764b;
+  --vermelho: #b83b35;
+  --texto: #34291f;
+  --borda: #e3d7c8;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bege);
-      color: var(--marrom-escuro);
-    }
+* {
+  box-sizing: border-box;
+}
 
-    header {
-      background: var(--marrom);
-      color: white;
-      padding: 23px 16px;
-      text-align: center;
-    }
+body {
+  margin: 0;
+  background: var(--bege);
+  color: var(--texto);
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 30px;
-      letter-spacing: 2px;
-    }
+header {
+  background: var(--marrom);
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+}
 
-    header p {
-      margin: 7px 0 0;
-      color: #ead8c1;
-      font-size: 13px;
-    }
+header h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: 3px;
+}
 
-    main {
-      max-width: 900px;
-      margin: 28px auto;
-      padding: 0 15px 35px;
-    }
+header p {
+  margin: 7px 0 0;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
 
-    .card {
-      background: var(--creme);
-      border: 1px solid var(--borda);
-      border-radius: 15px;
-      padding: 24px;
-      box-shadow: 0 5px 18px rgba(60, 40, 20, .07);
-      margin-bottom: 18px;
-    }
+main {
+  width: min(1050px, 94%);
+  margin: 25px auto;
+}
 
-    .login-card {
-      max-width: 430px;
-      margin: 50px auto;
-    }
+.card {
+  background: var(--creme);
+  border: 1px solid var(--borda);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 12px #00000009;
+}
 
-    h2 {
-      margin: 0 0 17px;
-      color: var(--marrom);
-      font-size: 21px;
-    }
+.login-card {
+  max-width: 460px;
+  margin: 40px auto;
+}
 
-    h3 {
-      margin: 0;
-      font-size: 16px;
-    }
+h2 {
+  margin: 0 0 12px;
+  color: var(--marrom);
+  font-size: 23px;
+}
 
-    p { line-height: 1.5; }
+h3 {
+  margin: 0 0 12px;
+  color: var(--marrom);
+}
 
-    label {
-      display: block;
-      margin: 15px 0 6px;
-      font-weight: bold;
-      font-size: 13px;
-    }
+.subtitulo {
+  color: #806f5f;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-    input {
-      display: block;
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #cbbba6;
-      border-radius: 9px;
-      background: white;
-      font-size: 16px;
-      color: #342519;
-    }
+label {
+  display: block;
+  margin: 15px 0 6px;
+  font-size: 14px;
+  font-weight: bold;
+}
 
-    input:focus {
-      outline: 2px solid #a78560;
-      border-color: transparent;
-    }
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #cdbdab;
+  border-radius: 8px;
+  background: white;
+  font-size: 15px;
+  outline-color: var(--verde);
+}
 
-    button {
-      border: 0;
-      border-radius: 9px;
-      padding: 12px 16px;
-      background: var(--marrom);
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-    }
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity .2s;
+}
 
-    button:hover { filter: brightness(1.08); }
-    button:disabled { opacity: .55; cursor: wait; }
+button:hover {
+  opacity: .85;
+}
 
-    .btn-verde { background: var(--verde); }
-    .btn-vermelho { background: var(--vermelho); }
-    .btn-claro {
-      background: #eee2d0;
-      color: var(--marrom);
-    }
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
 
-    .btn-largo {
-      width: 100%;
-      margin-top: 20px;
-    }
+.btn-verde {
+  background: var(--verde);
+  color: white;
+}
 
-    .linha {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+.btn-marrom {
+  background: var(--marrom);
+  color: white;
+}
 
-    .acoes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-    }
+.btn-vermelho {
+  background: var(--vermelho);
+  color: white;
+}
 
-    .subtitulo {
-      font-size: 13px;
-      color: #786653;
-    }
+.btn-claro {
+  background: #e8dccb;
+  color: var(--marrom);
+}
 
-    .lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 13px;
-      margin-top: 18px;
-    }
+.btn-largo {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+}
 
-    .motoboy {
-      background: white;
-      border: 1px solid var(--borda);
-      border-radius: 12px;
-      padding: 17px;
-    }
+.linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
 
-    .motoboy .login {
-      font-size: 19px;
-      font-weight: bold;
-      color: var(--marrom);
-      margin: 9px 0 15px;
-      overflow-wrap: anywhere;
-    }
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-    .motoboy button { width: 100%; }
+.oculto {
+  display: none !important;
+}
 
-    .etiqueta {
-      font-size: 11px;
-      font-weight: bold;
-      color: var(--verde);
-      text-transform: uppercase;
-      letter-spacing: .7px;
-    }
+.mensagem {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-    .mensagem {
-      display: none;
-      padding: 13px;
-      border-radius: 9px;
-      margin: 13px 0;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
+.mensagem.erro {
+  color: var(--vermelho);
+}
 
-    .mensagem.sucesso {
-      display: block;
-      background: #e5f4e7;
-      color: #225c31;
-    }
+.mensagem.sucesso {
+  color: var(--verde);
+}
 
-    .mensagem.erro {
-      display: block;
-      background: #fbe6e3;
-      color: #8c2922;
-    }
+.tabela {
+  overflow-x: auto;
+  margin-top: 18px;
+}
 
-    .oculto { display: none !important; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    .modal-fundo {
-      position: fixed;
-      inset: 0;
-      background: rgba(28, 20, 13, .65);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px;
-      z-index: 10;
-    }
+th {
+  background: #e9ddcc;
+  color: var(--marrom);
+  text-align: left;
+  font-size: 13px;
+  padding: 13px 10px;
+}
 
-    .modal {
-      background: var(--creme);
-      border-radius: 15px;
-      width: 100%;
-      max-width: 440px;
-      padding: 25px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+td {
+  border-bottom: 1px solid var(--borda);
+  padding: 13px 10px;
+  font-size: 14px;
+  vertical-align: middle;
+}
 
-    .modal .acoes {
-      margin-top: 22px;
-    }
+td strong {
+  font-size: 15px;
+}
 
-    .modal .acoes button {
-      flex: 1;
-    }
+.motoboy-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
-    .rodape {
-      text-align: center;
-      color: #897662;
-      font-size: 12px;
-      margin-top: 25px;
-    }
+.motoboy-acoes button {
+  padding: 8px 10px;
+  font-size: 12px;
+}
 
-    @media (max-width: 550px) {
-      .card { padding: 18px; }
-      .login-card { margin-top: 22px; }
-      .acoes { width: 100%; }
-      .acoes button { flex: 1; }
-    }
-  </style>
+.estado {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.estado.sim {
+  color: var(--verde);
+}
+
+.estado.nao {
+  color: var(--vermelho);
+}
+
+.resumo {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.resumo-item {
+  background: #f0e5d6;
+  padding: 12px 18px;
+  border-radius: 9px;
+  min-width: 130px;
+}
+
+.resumo-item strong {
+  display: block;
+  font-size: 22px;
+  color: var(--marrom);
+}
+
+.resumo-item span {
+  font-size: 12px;
+  color: #756353;
+}
+
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  background: #1c140da6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--creme);
+  border-radius: 15px;
+  width: 100%;
+  max-width: 460px;
+  padding: 25px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal .acoes {
+  margin-top: 22px;
+}
+
+.modal .acoes button {
+  flex: 1;
+}
+
+.aviso {
+  background: #fff3d6;
+  border: 1px solid #e6c879;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 15px;
+}
+
+.rodape {
+  text-align: center;
+  color: #897662;
+  font-size: 12px;
+  padding: 15px;
+}
+
+@media (max-width: 650px) {
+  .card {
+    padding: 17px;
+  }
+
+  .linha {
+    align-items: stretch;
+  }
+
+  .acoes {
+    width: 100%;
+  }
+
+  .acoes button {
+    flex: 1;
+  }
+
+  th, td {
+    padding: 10px 7px;
+  }
+
+  .motoboy-acoes {
+    min-width: 170px;
+  }
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <h1>DAROÇA</h1>
-    <p>PAINEL DO RESTAURANTE</p>
-  </header>
 
-  <main>
-    <section id="telaLogin" class="card login-card">
-      <h2>Acesso do proprietário</h2>
-      <p class="subtitulo">
-        Entre com o código e a senha fornecidos
-        pelo administrador.
-      </p>
+<header>
+  <h1>DAROÇA</h1>
+  <p>PAINEL DO RESTAURANTE</p>
+</header>
 
-      <form id="formLogin">
-        <label for="codigo">Código do restaurante</label>
-        <input
-          id="codigo"
-          type="text"
-          maxlength="20"
-          autocomplete="username"
-          autocapitalize="none"
-          required
+<main>
+
+<section id="telaLogin" class="card login-card">
+  <h2>Acesso do proprietário</h2>
+
+  <p class="subtitulo">
+    Entre com o código e a senha fornecidos
+    pelo administrador do DAROÇA APP.
+  </p>
+
+  <form id="formLogin">
+    <label for="codigo">Código do restaurante</label>
+
+    <input
+      id="codigo"
+      type="text"
+      maxlength="20"
+      autocomplete="username"
+      autocapitalize="none"
+      required
+    >
+
+    <label for="senhaLogin">Senha</label>
+
+    <input
+      id="senhaLogin"
+      type="password"
+      autocomplete="current-password"
+      required
+    >
+
+    <div id="mensagemLogin" class="mensagem"></div>
+
+    <button
+      id="btnEntrar"
+      class="btn-verde btn-largo"
+      type="submit"
+    >
+      Entrar no painel
+    </button>
+  </form>
+</section>
+
+<section id="telaPainel" class="oculto">
+
+  <div class="card">
+    <div class="linha">
+      <div>
+        <h2 id="nomeRestaurante">Meu restaurante</h2>
+        <p
+          id="codigoRestaurante"
+          class="subtitulo"
+        ></p>
+      </div>
+
+      <div class="acoes">
+        <button
+          id="btnMinhaSenha"
+          class="btn-claro"
+          type="button"
         >
-
-        <label for="senhaLogin">Senha</label>
-        <input
-          id="senhaLogin"
-          type="password"
-          autocomplete="current-password"
-          required
-        >
-
-        <div id="mensagemLogin" class="mensagem"></div>
+          Alterar minha senha
+        </button>
 
         <button
-          id="btnEntrar"
-          class="btn-verde btn-largo"
-          type="submit"
+          id="btnSair"
+          class="btn-vermelho"
+          type="button"
         >
-          Entrar no painel
+          Sair
         </button>
-      </form>
-    </section>
-
-    <section id="telaPainel" class="oculto">
-      <div class="card">
-        <div class="linha">
-          <div>
-            <h2 id="nomeRestaurante">Meu restaurante</h2>
-            <p id="codigoRestaurante" class="subtitulo"></p>
-          </div>
-
-          <div class="acoes">
-            <button
-              id="btnMinhaSenha"
-              class="btn-claro"
-              type="button"
-            >
-              Alterar minha senha
-            </button>
-
-            <button
-              id="btnSair"
-              class="btn-vermelho"
-              type="button"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
       </div>
-
-      <div class="card">
-        <div class="linha">
-          <div>
-            <h2>Meus motoboys</h2>
-            <p class="subtitulo">
-              Escolha um motoboy para alterar sua senha.
-            </p>
-          </div>
-
-          <button
-            id="btnAtualizar"
-            class="btn-claro"
-            type="button"
-          >
-            Atualizar lista
-          </button>
-        </div>
-
-        <div id="mensagemPainel" class="mensagem"></div>
-
-        <div id="listaMotoboys" class="lista"></div>
-      </div>
-
-      <p class="rodape">
-        DAROÇA APP — Gerenciamento de acessos
-      </p>
-    </section>
-  </main>
-
-  <div id="fundoModal" class="modal-fundo oculto">
-    <div
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="tituloModal"
-    >
-      <h2 id="tituloModal">Alterar senha</h2>
-      <p id="descricaoModal" class="subtitulo"></p>
-
-      <form id="formSenha">
-        <div id="campoSenhaAtual" class="oculto">
-          <label for="senhaAtual">Senha atual</label>
-          <input
-            id="senhaAtual"
-            type="password"
-            autocomplete="current-password"
-          >
-        </div>
-
-        <label for="novaSenha">Nova senha</label>
-        <input
-          id="novaSenha"
-          type="password"
-          minlength="8"
-          maxlength="72"
-          autocomplete="new-password"
-          required
-        >
-
-        <label for="confirmarSenha">Confirmar nova senha</label>
-        <input
-          id="confirmarSenha"
-          type="password"
-          minlength="8"
-          maxlength="72"
-          autocomplete="new-password"
-          required
-        >
-
-        <p class="subtitulo">
-          A senha deve ter de 8 a 72 caracteres.
-        </p>
-
-        <div id="mensagemModal" class="mensagem"></div>
-
-        <div class="acoes">
-          <button
-            id="btnCancelar"
-            class="btn-claro"
-            type="button"
-          >
-            Cancelar
-          </button>
-
-          <button
-            id="btnSalvarSenha"
-            class="btn-verde"
-            type="submit"
-          >
-            Salvar senha
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 
-  <script>
-    "use strict";
+  <div class="card">
 
-    const API =
-      "https://daroca-licencas.darocarestaurante1.workers.dev";
+    <div class="linha">
+      <div>
+        <h2>Meus motoboys</h2>
 
-    const $ = id => document.getElementById(id);
+        <p class="subtitulo">
+          Gerencie os 10 acessos do seu restaurante.
+          Altere logins, senhas e celulares vinculados.
+        </p>
+      </div>
 
-    let token = "";
-    let expiraEm = 0;
-    let loginSelecionado = "";
-    let tipoAlteracao = "";
+      <button
+        id="btnAtualizar"
+        class="btn-marrom"
+        type="button"
+      >
+        Atualizar lista
+      </button>
+    </div>
 
-    function mostrarMensagem(id, texto, sucesso = false) {
-      const elemento = $(id);
-      elemento.textContent = texto;
-      elemento.className =
-        "mensagem " + (sucesso ? "sucesso" : "erro");
+    <div class="resumo">
+      <div class="resumo-item">
+        <strong id="totalMotoboys">0</strong>
+        <span>Logins cadastrados</span>
+      </div>
+
+      <div class="resumo-item">
+        <strong id="totalVinculados">0</strong>
+        <span>Celulares vinculados</span>
+      </div>
+    </div>
+
+    <div id="mensagemPainel" class="mensagem"></div>
+
+    <div class="tabela">
+      <table>
+        <thead>
+          <tr>
+            <th>Motoboy</th>
+            <th>Celular</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody id="listaMotoboys">
+          <tr>
+            <td colspan="4">
+              Carregando motoboys...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="aviso">
+      <strong>Importante:</strong>
+      Ao trocar o login ou substituir um motoboy,
+      o celular anterior será desvinculado.
+      O novo motoboy deverá entrar novamente no aplicativo.
+      A quantidade de acessos continua a mesma.
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+<div id="modalFundo" class="modal-fundo oculto">
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="tituloModal"
+  >
+
+    <h2 id="tituloModal">Alterar dados</h2>
+
+    <p id="descricaoModal" class="subtitulo"></p>
+
+    <form id="formModal">
+
+      <div id="camposModal"></div>
+
+      <div id="mensagemModal" class="mensagem"></div>
+
+      <div class="acoes">
+        <button
+          id="btnCancelarModal"
+          class="btn-claro"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btnSalvarModal"
+          class="btn-verde"
+          type="submit"
+        >
+          Salvar
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<footer class="rodape">
+  DAROÇA APP — Gestão de entregadores
+</footer>
+
+<script>
+"use strict";
+
+/* CONFIGURAÇÃO */
+
+const API =
+  "https://daroca-licencas.darocarestaurante1.workers.dev";
+
+let tokenRestaurante = "";
+let restauranteAtual = null;
+let motoboys = [];
+let acaoModal = null;
+let loginSelecionado = "";
+
+/* ELEMENTOS */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function mensagem(id, texto, tipo = "") {
+  const elemento = $(id);
+
+  elemento.textContent = texto || "";
+  elemento.className = "mensagem";
+
+  if (tipo) {
+    elemento.classList.add(tipo);
+  }
+}
+
+function criarElemento(tag, texto, classe) {
+  const elemento = document.createElement(tag);
+
+  if (texto !== undefined) {
+    elemento.textContent = texto;
+  }
+
+  if (classe) {
+    elemento.className = classe;
+  }
+
+  return elemento;
+}
+
+/* API */
+
+async function requisicao(
+  caminho,
+  metodo = "GET",
+  dados = null
+) {
+  const headers = {
+    "Accept": "application/json"
+  };
+
+  if (tokenRestaurante) {
+    headers.Authorization =
+      "Bearer " + tokenRestaurante;
+  }
+
+  const opcoes = {
+    method: metodo,
+    headers,
+    cache: "no-store"
+  };
+
+  if (dados !== null) {
+    headers["Content-Type"] = "application/json";
+    opcoes.body = JSON.stringify(dados);
+  }
+
+  let resposta;
+
+  try {
+    resposta = await fetch(
+      API + caminho,
+      opcoes
+    );
+  } catch {
+    throw new Error(
+      "Não foi possível conectar ao servidor."
+    );
+  }
+
+  let resultado;
+
+  try {
+    resultado = await resposta.json();
+  } catch {
+    throw new Error(
+      "O servidor retornou uma resposta inválida."
+    );
+  }
+
+  if (!resposta.ok || resultado.sucesso === false) {
+    if (
+      resposta.status === 401 &&
+      caminho !== "/restaurante/login"
+    ) {
+      sair(false);
     }
 
-    function limparMensagem(id) {
-      const elemento = $(id);
-      elemento.textContent = "";
-      elemento.className = "mensagem";
+    throw new Error(
+      resultado.erro ||
+      resultado.mensagem ||
+      "Não foi possível concluir a operação."
+    );
+  }
+
+  return resultado;
+}
+
+/* LOGIN */
+
+$("formLogin").addEventListener(
+  "submit",
+  async evento => {
+    evento.preventDefault();
+
+    const codigo = $("codigo")
+      .value.trim().toLowerCase();
+
+    const senha = $("senhaLogin").value;
+
+    if (!codigo || !senha) {
+      mensagem(
+        "mensagemLogin",
+        "Informe o código e a senha.",
+        "erro"
+      );
+      return;
     }
 
-    function bloquearBotao(id, bloqueado, texto) {
-      const botao = $(id);
-      botao.disabled = bloqueado;
-      if (texto) botao.textContent = texto;
-    }
+    $("btnEntrar").disabled = true;
 
-    async function requisicao(caminho, metodo = "GET", dados) {
-      const cabecalhos = {};
+    mensagem(
+      "mensagemLogin",
+      "Verificando acesso..."
+    );
 
-      if (token) {
-        cabecalhos.Authorization = "Bearer " + token;
-      }
+    try {
+      tokenRestaurante = "";
 
-      if (dados !== undefined) {
-        cabecalhos["Content-Type"] = "application/json";
-      }
+      const resultado = await requisicao(
+        "/restaurante/login",
+        "POST",
+        { codigo, senha }
+      );
 
-      const opcoes = {
-        method: metodo,
-        headers: cabecalhos,
-        cache: "no-store"
-      };
+      tokenRestaurante = resultado.token;
 
-      if (dados !== undefined) {
-        opcoes.body = JSON.stringify(dados);
-      }
+      restauranteAtual =
+        resultado.restaurante || {
+          nome: "Meu restaurante",
+          codigo
+        };
 
-      const resposta = await fetch(API + caminho, opcoes);
+      $("nomeRestaurante").textContent =
+        restauranteAtual.nome;
 
-      let resultado;
-      try {
-        resultado = await resposta.json();
-      } catch {
-        throw new Error(
-          "Não foi possível interpretar a resposta do servidor."
-        );
-      }
-
-      if (!resposta.ok || !resultado.sucesso) {
-        const erro = new Error(
-          resultado.erro || "Ocorreu um erro na operação."
-        );
-        erro.status = resposta.status;
-        throw erro;
-      }
-
-      return resultado;
-    }
-
-    function encerrarSessao() {
-      token = "";
-      expiraEm = 0;
-      loginSelecionado = "";
-      tipoAlteracao = "";
-
-      $("telaPainel").classList.add("oculto");
-      $("telaLogin").classList.remove("oculto");
-      $("fundoModal").classList.add("oculto");
+      $("codigoRestaurante").textContent =
+        "Código: " + restauranteAtual.codigo;
 
       $("senhaLogin").value = "";
-      $("listaMotoboys").replaceChildren();
 
-      limparMensagem("mensagemPainel");
-      limparMensagem("mensagemModal");
-    }
+      $("telaLogin").classList.add("oculto");
+      $("telaPainel").classList.remove("oculto");
 
-    function tratarErro(error, destino) {
-      if (error.status === 401 && token) {
-        encerrarSessao();
-        mostrarMensagem(
+      mensagem("mensagemLogin", "");
+
+      await carregarMotoboys();
+
+    } catch (erro) {
+      if (!$("telaLogin").classList.contains("oculto")) {
+        mensagem(
           "mensagemLogin",
-          "Sua sessão expirou ou foi encerrada. Entre novamente."
+          erro.message,
+          "erro"
         );
+      } else {
+        mensagem(
+          "mensagemPainel",
+          erro.message,
+          "erro"
+        );
+      }
+    } finally {
+      $("btnEntrar").disabled = false;
+    }
+  }
+);
+
+/* SAIR */
+
+function sair(limparMensagem = true) {
+  tokenRestaurante = "";
+  restauranteAtual = null;
+  motoboys = [];
+
+  fecharModal();
+
+  $("telaPainel").classList.add("oculto");
+  $("telaLogin").classList.remove("oculto");
+
+  $("listaMotoboys").replaceChildren();
+
+  $("totalMotoboys").textContent = "0";
+  $("totalVinculados").textContent = "0";
+
+  $("senhaLogin").value = "";
+
+  if (limparMensagem) {
+    mensagem("mensagemLogin", "");
+  } else {
+    mensagem(
+      "mensagemLogin",
+      "Sua sessão expirou. Entre novamente.",
+      "erro"
+    );
+  }
+}
+
+$("btnSair").addEventListener(
+  "click",
+  () => sair()
+);
+
+/* CARREGAR MOTOBOYS */
+
+async function carregarMotoboys() {
+  mensagem(
+    "mensagemPainel",
+    "Atualizando lista..."
+  );
+
+  $("btnAtualizar").disabled = true;
+
+  try {
+    const resultado = await requisicao(
+      "/restaurante/motoboys"
+    );
+
+    motoboys = Array.isArray(resultado.motoboys)
+      ? resultado.motoboys
+      : [];
+
+    renderizarMotoboys();
+
+    mensagem("mensagemPainel", "");
+
+  } catch (erro) {
+    mensagem(
+      "mensagemPainel",
+      erro.message,
+      "erro"
+    );
+  } finally {
+    $("btnAtualizar").disabled = false;
+  }
+}
+
+$("btnAtualizar").addEventListener(
+  "click",
+  carregarMotoboys
+);
+
+/* TABELA */
+
+function renderizarMotoboys() {
+  const lista = $("listaMotoboys");
+  lista.replaceChildren();
+
+  $("totalMotoboys").textContent =
+    String(motoboys.length);
+
+  $("totalVinculados").textContent =
+    String(
+      motoboys.filter(
+        m => Boolean(m.dispositivo_id)
+      ).length
+    );
+
+  if (motoboys.length === 0) {
+    const linha = criarElemento("tr");
+    const coluna = criarElemento(
+      "td",
+      "Nenhum motoboy encontrado."
+    );
+
+    coluna.colSpan = 4;
+    linha.appendChild(coluna);
+    lista.appendChild(linha);
+    return;
+  }
+
+  motoboys.forEach(motoboy => {
+    const linha = criarElemento("tr");
+
+    const colunaLogin = criarElemento("td");
+    colunaLogin.appendChild(
+      criarElemento("strong", motoboy.login)
+    );
+
+    const colunaCelular = criarElemento("td");
+
+    const celularVinculado =
+      Boolean(motoboy.dispositivo_id);
+
+    colunaCelular.appendChild(
+      criarElemento(
+        "span",
+        celularVinculado
+          ? "Vinculado"
+          : "Livre",
+        celularVinculado
+          ? "estado sim"
+          : "estado nao"
+      )
+    );
+
+    const colunaStatus = criarElemento("td");
+
+    colunaStatus.appendChild(
+      criarElemento(
+        "span",
+        motoboy.ativo
+          ? "Ativo"
+          : "Bloqueado",
+        motoboy.ativo
+          ? "estado sim"
+          : "estado nao"
+      )
+    );
+
+    const colunaAcoes = criarElemento("td");
+    const acoes = criarElemento(
+      "div",
+      undefined,
+      "motoboy-acoes"
+    );
+
+    const botaoLogin = criarElemento(
+      "button",
+      "Alterar login",
+      "btn-marrom"
+    );
+
+    botaoLogin.type = "button";
+    botaoLogin.addEventListener(
+      "click",
+      () => abrirModal("login", motoboy.login)
+    );
+
+    const botaoSenha = criarElemento(
+      "button",
+      "Alterar senha",
+      "btn-verde"
+    );
+
+    botaoSenha.type = "button";
+    botaoSenha.addEventListener(
+      "click",
+      () => abrirModal("senha", motoboy.login)
+    );
+
+    const botaoTrocar = criarElemento(
+      "button",
+      "Substituir",
+      "btn-claro"
+    );
+
+    botaoTrocar.type = "button";
+    botaoTrocar.addEventListener(
+      "click",
+      () => abrirModal("substituir", motoboy.login)
+    );
+
+    const botaoDesvincular = criarElemento(
+      "button",
+      "Desvincular",
+      "btn-vermelho"
+    );
+
+    botaoDesvincular.type = "button";
+
+    botaoDesvincular.disabled =
+      !celularVinculado;
+
+    botaoDesvincular.addEventListener(
+      "click",
+      () => desvincularCelular(motoboy.login)
+    );
+
+    acoes.appendChild(botaoLogin);
+    acoes.appendChild(botaoSenha);
+    acoes.appendChild(botaoTrocar);
+    acoes.appendChild(botaoDesvincular);
+
+    colunaAcoes.appendChild(acoes);
+
+    linha.appendChild(colunaLogin);
+    linha.appendChild(colunaCelular);
+    linha.appendChild(colunaStatus);
+    linha.appendChild(colunaAcoes);
+
+    lista.appendChild(linha);
+  });
+}
+
+/* CAMPOS DOS MODAIS */
+
+function adicionarCampo(
+  id,
+  titulo,
+  tipo = "text",
+  valor = "",
+  minimo = null,
+  maximo = null
+) {
+  const container = $("camposModal");
+
+  const label = criarElemento("label", titulo);
+  label.htmlFor = id;
+
+  const input = criarElemento("input");
+
+  input.id = id;
+  input.type = tipo;
+  input.value = valor;
+  input.required = true;
+
+  if (minimo !== null) {
+    input.minLength = minimo;
+  }
+
+  if (maximo !== null) {
+    input.maxLength = maximo;
+  }
+
+  if (tipo === "text") {
+    input.autocapitalize = "none";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+  }
+
+  if (tipo === "password") {
+    input.autocomplete = "new-password";
+  }
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return input;
+}
+
+/* ABRIR MODAL */
+
+function abrirModal(acao, login = "") {
+  acaoModal = acao;
+  loginSelecionado = login;
+
+  $("camposModal").replaceChildren();
+  mensagem("mensagemModal", "");
+
+  $("btnSalvarModal").disabled = false;
+  $("btnCancelarModal").disabled = false;
+
+  $("btnSalvarModal").textContent = "Salvar";
+
+  if (acao === "login") {
+    $("tituloModal").textContent =
+      "Alterar login do motoboy";
+
+    $("descricaoModal").textContent =
+      "Login atual: " + login;
+
+    adicionarCampo(
+      "novoLogin",
+      "Novo login",
+      "text",
+      login,
+      5,
+      22
+    );
+
+    $("btnSalvarModal").textContent =
+      "Alterar login";
+  }
+
+  if (acao === "senha") {
+    $("tituloModal").textContent =
+      "Alterar senha do motoboy";
+
+    $("descricaoModal").textContent =
+      "Motoboy: " + login;
+
+    adicionarCampo(
+      "novaSenha",
+      "Nova senha",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    adicionarCampo(
+      "confirmarSenha",
+      "Confirmar nova senha",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    $("btnSalvarModal").textContent =
+      "Alterar senha";
+  }
+
+  if (acao === "substituir") {
+    $("tituloModal").textContent =
+      "Substituir motoboy";
+
+    $("descricaoModal").textContent =
+      "Você está substituindo o motoboy " +
+      login + ".";
+
+    adicionarCampo(
+      "novoLogin",
+      "Login do novo motoboy",
+      "text",
+      login,
+      5,
+      22
+    );
+
+    adicionarCampo(
+      "novaSenha",
+      "Senha do novo motoboy",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    adicionarCampo(
+      "confirmarSenha",
+      "Confirmar senha",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    const aviso = criarElemento(
+      "div",
+      "O celular anterior será desvinculado. " +
+      "O novo motoboy deverá fazer login no aplicativo.",
+      "aviso"
+    );
+
+    $("camposModal").appendChild(aviso);
+
+    $("btnSalvarModal").textContent =
+      "Confirmar substituição";
+  }
+
+  if (acao === "minhaSenha") {
+    $("tituloModal").textContent =
+      "Alterar minha senha";
+
+    $("descricaoModal").textContent =
+      "Altere a senha de acesso ao painel do restaurante.";
+
+    adicionarCampo(
+      "senhaAtual",
+      "Senha atual",
+      "password"
+    );
+
+    adicionarCampo(
+      "novaSenha",
+      "Nova senha",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    adicionarCampo(
+      "confirmarSenha",
+      "Confirmar nova senha",
+      "password",
+      "",
+      8,
+      72
+    );
+
+    $("btnSalvarModal").textContent =
+      "Alterar minha senha";
+  }
+
+  $("modalFundo").classList.remove("oculto");
+
+  const primeiroCampo =
+    $("camposModal").querySelector("input");
+
+  if (primeiroCampo) {
+    primeiroCampo.focus();
+  }
+}
+
+/* FECHAR MODAL */
+
+function fecharModal() {
+  $("modalFundo").classList.add("oculto");
+
+  $("camposModal").replaceChildren();
+  mensagem("mensagemModal", "");
+
+  acaoModal = null;
+  loginSelecionado = "";
+}
+
+$("btnCancelarModal").addEventListener(
+  "click",
+  fecharModal
+);
+
+$("modalFundo").addEventListener(
+  "click",
+  evento => {
+    if (evento.target === $("modalFundo")) {
+      fecharModal();
+    }
+  }
+);
+
+document.addEventListener(
+  "keydown",
+  evento => {
+    if (
+      evento.key === "Escape" &&
+      !$("modalFundo").classList.contains("oculto")
+    ) {
+      fecharModal();
+    }
+  }
+);
+
+$("btnMinhaSenha").addEventListener(
+  "click",
+  () => abrirModal("minhaSenha")
+);
+
+/* VALIDAÇÕES */
+
+function normalizarLogin(valor) {
+  return String(valor || "")
+    .trim()
+    .toLowerCase();
+}
+
+function validarNovoLogin(login) {
+  return /^[a-z0-9]{5,22}$/.test(login);
+}
+
+function validarSenha() {
+  const novaSenha = $("novaSenha").value;
+  const confirmacao = $("confirmarSenha").value;
+
+  if (
+    novaSenha.length < 8 ||
+    novaSenha.length > 72
+  ) {
+    throw new Error(
+      "A senha deve ter de 8 a 72 caracteres."
+    );
+  }
+
+  if (novaSenha !== confirmacao) {
+    throw new Error(
+      "As senhas digitadas não são iguais."
+    );
+  }
+
+  return novaSenha;
+}
+
+/* SALVAR MODAL */
+
+$("formModal").addEventListener(
+  "submit",
+  async evento => {
+    evento.preventDefault();
+
+    if (!acaoModal) return;
+
+    $("btnSalvarModal").disabled = true;
+    $("btnCancelarModal").disabled = true;
+
+    mensagem(
+      "mensagemModal",
+      "Salvando alterações..."
+    );
+
+    try {
+      let resultado;
+
+      if (acaoModal === "login") {
+        const novoLogin = normalizarLogin(
+          $("novoLogin").value
+        );
+
+        if (!validarNovoLogin(novoLogin)) {
+          throw new Error(
+            "O login deve ter de 5 a 22 letras ou números."
+          );
+        }
+
+        if (novoLogin === loginSelecionado) {
+          throw new Error(
+            "Escolha um login diferente do atual."
+          );
+        }
+
+        if (!confirm(
+          "Alterar o login de " +
+          loginSelecionado +
+          " para " +
+          novoLogin +
+          "?\n\nO celular anterior será desvinculado."
+        )) {
+          return;
+        }
+
+        resultado = await requisicao(
+          "/restaurante/motoboy/login",
+          "POST",
+          {
+            login: loginSelecionado,
+            novo_login: novoLogin
+          }
+        );
+      }
+
+      if (acaoModal === "senha") {
+        const novaSenha = validarSenha();
+
+        resultado = await requisicao(
+          "/restaurante/motoboy/senha",
+          "POST",
+          {
+            login: loginSelecionado,
+            nova_senha: novaSenha
+          }
+        );
+      }
+
+      if (acaoModal === "substituir") {
+        const novoLogin = normalizarLogin(
+          $("novoLogin").value
+        );
+
+        if (!validarNovoLogin(novoLogin)) {
+          throw new Error(
+            "O login deve ter de 5 a 22 letras ou números."
+          );
+        }
+
+        const novaSenha = validarSenha();
+
+        if (!confirm(
+          "Confirma a substituição de " +
+          loginSelecionado +
+          "?\n\nO acesso anterior será invalidado " +
+          "e o celular será desvinculado."
+        )) {
+          return;
+        }
+
+        resultado = await requisicao(
+          "/restaurante/motoboy/substituir",
+          "POST",
+          {
+            login: loginSelecionado,
+            novo_login: novoLogin,
+            nova_senha: novaSenha
+          }
+        );
+      }
+
+      if (acaoModal === "minhaSenha") {
+        const senhaAtual = $("senhaAtual").value;
+        const novaSenha = validarSenha();
+
+        if (senhaAtual === novaSenha) {
+          throw new Error(
+            "A nova senha deve ser diferente da atual."
+          );
+        }
+
+        resultado = await requisicao(
+          "/restaurante/senha",
+          "POST",
+          {
+            senha_atual: senhaAtual,
+            nova_senha: novaSenha
+          }
+        );
+      }
+
+      const eraSenhaProprietario =
+        acaoModal === "minhaSenha";
+
+      fecharModal();
+
+      if (eraSenhaProprietario) {
+        sair();
+
+        mensagem(
+          "mensagemLogin",
+          "Senha alterada com sucesso. " +
+          "Entre novamente com sua nova senha.",
+          "sucesso"
+        );
+
         return;
       }
 
-      mostrarMensagem(
-        destino,
-        error.message || "Não foi possível concluir a operação."
+      await carregarMotoboys();
+
+      mensagem(
+        "mensagemPainel",
+        resultado.mensagem ||
+        "Alteração realizada com sucesso.",
+        "sucesso"
       );
+
+    } catch (erro) {
+      mensagem(
+        "mensagemModal",
+        erro.message,
+        "erro"
+      );
+    } finally {
+      $("btnSalvarModal").disabled = false;
+      $("btnCancelarModal").disabled = false;
     }
+  }
+);
 
-    async function carregarMotoboys() {
-      limparMensagem("mensagemPainel");
-      $("listaMotoboys").replaceChildren();
+/* DESVINCULAR CELULAR */
 
-      try {
-        const dados = await requisicao(
-          "/restaurante/motoboys"
-        );
+async function desvincularCelular(login) {
+  const motoboy = motoboys.find(
+    m => m.login === login
+  );
 
-        const lista = Array.isArray(dados.motoboys)
-          ? dados.motoboys
-          : [];
+  if (!motoboy) {
+    alert("Motoboy não encontrado.");
+    return;
+  }
 
-        if (!lista.length) {
-          mostrarMensagem(
-            "mensagemPainel",
-            "Nenhum motoboy cadastrado neste restaurante."
-          );
-          return;
-        }
+  if (!motoboy.dispositivo_id) {
+    alert("Este motoboy não possui celular vinculado.");
+    return;
+  }
 
-        for (const motoboy of lista) {
-          const card = document.createElement("div");
-          card.className = "motoboy";
+  const confirmado = confirm(
+    "Deseja desvincular o celular de " +
+    login +
+    "?\n\nO aparelho atual perderá o acesso " +
+    "e será necessário fazer login novamente."
+  );
 
-          const etiqueta = document.createElement("div");
-          etiqueta.className = "etiqueta";
-          etiqueta.textContent = "Acesso do motoboy";
+  if (!confirmado) return;
 
-          const nome = document.createElement("div");
-          nome.className = "login";
-          nome.textContent = motoboy.login;
+  mensagem(
+    "mensagemPainel",
+    "Desvinculando celular..."
+  );
 
-          const botao = document.createElement("button");
-          botao.className = "btn-verde";
-          botao.type = "button";
-          botao.textContent = "Alterar senha";
-          botao.addEventListener("click", () => {
-            abrirModalMotoboy(motoboy.login);
-          });
-
-          card.append(etiqueta, nome, botao);
-          $("listaMotoboys").appendChild(card);
-        }
-      } catch (error) {
-        tratarErro(error, "mensagemPainel");
-      }
-    }
-
-    $("formLogin").addEventListener(
-      "submit",
-      async evento => {
-        evento.preventDefault();
-        limparMensagem("mensagemLogin");
-
-        bloquearBotao("btnEntrar", true, "Entrando...");
-
-        try {
-          const dados = await requisicao(
-            "/restaurante/login",
-            "POST",
-            {
-              codigo: $("codigo").value.trim(),
-              senha: $("senhaLogin").value
-            }
-          );
-
-          token = dados.token;
-          expiraEm = dados.expira_em;
-
-          $("nomeRestaurante").textContent =
-            dados.restaurante.nome;
-
-          $("codigoRestaurante").textContent =
-            "Código: " + dados.restaurante.codigo;
-
-          $("senhaLogin").value = "";
-
-          $("telaLogin").classList.add("oculto");
-          $("telaPainel").classList.remove("oculto");
-
-          await carregarMotoboys();
-        } catch (error) {
-          mostrarMensagem(
-            "mensagemLogin",
-            error.message || "Falha ao entrar."
-          );
-        } finally {
-          bloquearBotao(
-            "btnEntrar",
-            false,
-            "Entrar no painel"
-          );
-        }
-      }
+  try {
+    const resultado = await requisicao(
+      "/restaurante/motoboy/desvincular",
+      "POST",
+      { login }
     );
 
-    function abrirModalMotoboy(login) {
-      tipoAlteracao = "motoboy";
-      loginSelecionado = login;
+    await carregarMotoboys();
 
-      $("tituloModal").textContent =
-        "Alterar senha do motoboy";
-
-      $("descricaoModal").textContent =
-        "Login: " + login;
-
-      $("campoSenhaAtual").classList.add("oculto");
-      $("senhaAtual").required = false;
-
-      prepararModal();
-    }
-
-    function abrirModalProprietario() {
-      tipoAlteracao = "proprietario";
-      loginSelecionado = "";
-
-      $("tituloModal").textContent =
-        "Alterar minha senha";
-
-      $("descricaoModal").textContent =
-        "Confirme sua senha atual e escolha uma nova.";
-
-      $("campoSenhaAtual").classList.remove("oculto");
-      $("senhaAtual").required = true;
-
-      prepararModal();
-    }
-
-    function prepararModal() {
-      $("formSenha").reset();
-      limparMensagem("mensagemModal");
-      $("fundoModal").classList.remove("oculto");
-      $("novaSenha").focus();
-    }
-
-    function fecharModal() {
-      $("fundoModal").classList.add("oculto");
-      $("formSenha").reset();
-      limparMensagem("mensagemModal");
-    }
-
-    $("formSenha").addEventListener(
-      "submit",
-      async evento => {
-        evento.preventDefault();
-        limparMensagem("mensagemModal");
-
-        const novaSenha = $("novaSenha").value;
-        const confirmar = $("confirmarSenha").value;
-
-        if (novaSenha !== confirmar) {
-          mostrarMensagem(
-            "mensagemModal",
-            "As senhas digitadas não são iguais."
-          );
-          return;
-        }
-
-        if (
-          novaSenha.length < 8 ||
-          novaSenha.length > 72
-        ) {
-          mostrarMensagem(
-            "mensagemModal",
-            "Use uma senha de 8 a 72 caracteres."
-          );
-          return;
-        }
-
-        bloquearBotao(
-          "btnSalvarSenha",
-          true,
-          "Salvando..."
-        );
-
-        try {
-          if (tipoAlteracao === "motoboy") {
-            await requisicao(
-              "/restaurante/motoboy/senha",
-              "POST",
-              {
-                login: loginSelecionado,
-                nova_senha: novaSenha
-              }
-            );
-
-            fecharModal();
-
-            mostrarMensagem(
-              "mensagemPainel",
-              "Senha do motoboy " +
-                loginSelecionado +
-                " alterada com sucesso.",
-              true
-            );
-          } else if (tipoAlteracao === "proprietario") {
-            await requisicao(
-              "/restaurante/senha",
-              "POST",
-              {
-                senha_atual: $("senhaAtual").value,
-                nova_senha: novaSenha
-              }
-            );
-
-            fecharModal();
-            encerrarSessao();
-
-            mostrarMensagem(
-              "mensagemLogin",
-              "Sua senha foi alterada. " +
-                "Entre novamente com a nova senha.",
-              true
-            );
-          }
-        } catch (error) {
-          tratarErro(error, "mensagemModal");
-        } finally {
-          bloquearBotao(
-            "btnSalvarSenha",
-            false,
-            "Salvar senha"
-          );
-        }
-      }
+    mensagem(
+      "mensagemPainel",
+      resultado.mensagem ||
+      "Celular desvinculado com sucesso.",
+      "sucesso"
     );
 
-    $("btnMinhaSenha").addEventListener(
-      "click",
-      abrirModalProprietario
+  } catch (erro) {
+    mensagem(
+      "mensagemPainel",
+      erro.message,
+      "erro"
     );
+  }
+}
+</script>
 
-    $("btnCancelar").addEventListener(
-      "click",
-      fecharModal
-    );
-
-    $("btnSair").addEventListener(
-      "click",
-      encerrarSessao
-    );
-
-    $("btnAtualizar").addEventListener(
-      "click",
-      carregarMotoboys
-    );
-
-    $("fundoModal").addEventListener(
-      "click",
-      evento => {
-        if (evento.target === $("fundoModal")) {
-          fecharModal();
-        }
-      }
-    );
-
-    document.addEventListener("keydown", evento => {
-      if (
-        evento.key === "Escape" &&
-        !$("fundoModal").classList.contains("oculto")
-      ) {
-        fecharModal();
-      }
-    });
-  </script>
 </body>
 </html>
